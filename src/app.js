@@ -7,6 +7,7 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const normalize = (value) => value.toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+const searchableText = article => normalize(`${article.title} ${article.excerpt} ${article.abstract} ${article.field} ${article.category} ${article.type} ${article.keywords.join(' ')}`);
 function readStorage(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } }
 let saved;
 try { const value = JSON.parse(readStorage(savedKey, '[]')); saved = new Set(Array.isArray(value) ? value.filter(slug => articles.some(a => a.slug === slug)) : []); } catch { saved = new Set(); }
@@ -16,7 +17,7 @@ function updateSaveButtons() {
  $$('[data-save]').forEach(button => {
   const active = saved.has(button.dataset.save);
   button.setAttribute('aria-pressed', String(active));
-  button.setAttribute('aria-label', active ? 'Yazıyı kaydedilenlerden çıkar' : 'Yazıyı daha sonra okumak için kaydet');
+  button.setAttribute('aria-label', active ? 'Çalışmayı okuma listesinden çıkar' : 'Çalışmayı okuma listesine ekle');
  });
 }
 $$('[data-save]').forEach(button => button.addEventListener('click', () => {
@@ -25,13 +26,13 @@ $$('[data-save]').forEach(button => button.addEventListener('click', () => {
  let persisted = true;
  try { localStorage.setItem(savedKey, JSON.stringify([...saved])); } catch { persisted = false; }
  updateSaveButtons();
- toast(persisted ? (saved.has(slug) ? 'Yazı kaydedildi. İyi okumalar.' : 'Yazı kaydedilenlerden çıkarıldı.') : 'Bu oturum için kaydedildi. Tarayıcı kalıcı kayda izin vermiyor.');
+ toast(persisted ? (saved.has(slug) ? 'Çalışma okuma listesine eklendi.' : 'Çalışma okuma listesinden çıkarıldı.') : 'Bu oturum için kaydedildi. Tarayıcı kalıcı kayda izin vermiyor.');
 }));
 updateSaveButtons();
 function applyTheme(dark) {
  document.body.classList.toggle('dark', dark);
  $$('[data-toggle-theme]').forEach(button => button.setAttribute('aria-label', dark ? 'Açık temaya geç' : 'Koyu temaya geç'));
- $('meta[name="theme-color"]')?.setAttribute('content', dark ? '#20251f' : '#f7f5ef');
+ $('meta[name="theme-color"]')?.setAttribute('content', '#172a3c');
 }
 applyTheme(readStorage(themeKey, 'light') === 'dark');
 $$('[data-toggle-theme]').forEach(button => button.addEventListener('click', () => {
@@ -46,7 +47,7 @@ function filterArchive() {
  let count = 0;
  $$('.article-card').forEach(card => {
   const article = articles.find(a => a.slug === card.dataset.slug);
-  const match = (activeFilter === 'Tümü' || article.category === activeFilter) && normalize(`${article.title} ${article.excerpt} ${article.category} ${article.type}`).includes(search);
+  const match = (activeFilter === 'Tümü' || article.category === activeFilter) && searchableText(article).includes(search);
   card.hidden = !match;
   if (match) count++;
  });
@@ -68,19 +69,37 @@ $$('[data-topic]').forEach(link => link.addEventListener('click', () => { $('#ar
 $('#archive-search')?.addEventListener('input', filterArchive);
 $('#reset-filters')?.addEventListener('click', () => { $('#archive-search').value = ''; setFilter('Tümü'); $('#archive-search').focus(); });
 
+$$('[data-keyword]').forEach(link => link.addEventListener('click', () => { $('#archive-search').value = link.dataset.keyword; setFilter('Tümü'); }));
+$('#archive-sort')?.addEventListener('change', event => {
+ const mode = event.target.value;
+ const cards = $$('.article-card');
+ cards.sort((left, right) => {
+  const a = articles.find(article => article.slug === left.dataset.slug);
+  const b = articles.find(article => article.slug === right.dataset.slug);
+  if (mode === 'title') return a.title.localeCompare(b.title, 'tr');
+  if (mode === 'reading') return a.minutes - b.minutes || Number(left.dataset.order) - Number(right.dataset.order);
+  return Number(left.dataset.order) - Number(right.dataset.order);
+ });
+ const grid = $('.article-grid');
+ cards.forEach(card => grid.append(card));
+ const count = cards.filter(card => !card.hidden).length;
+ $('#filter-status').textContent = count + ' çalışma, ' + event.target.selectedOptions[0].textContent.toLocaleLowerCase('tr-TR') + ' gösteriliyor.';
+});
+
 const searchDialog = $('#search-dialog');
 let savedMode = false;
 let dialogTrigger;
 function renderDialog() {
  const query = normalize($('#dialog-input').value.trim());
- const matches = articles.filter(a => (!savedMode || saved.has(a.slug)) && normalize(`${a.title} ${a.excerpt} ${a.category} ${a.type}`).includes(query));
- $('#dialog-results').innerHTML = matches.length ? matches.map(a => `<a class="dialog-result" href="${base}yazilar/${a.slug}/"><div><p>${escapeHtml(a.category)} · ${a.minutes} dk okuma${a.sample ? ' · Örnek çalışma' : ''}</p><h3>${escapeHtml(a.title)}</h3></div><span aria-hidden="true">↗</span></a>`).join('') : `<p class="dialog-empty">${savedMode && !saved.size ? 'Henüz kaydettiğin bir yazı yok. Yazıların yanındaki ayraç simgesine dokunarak kendi okuma listeni oluşturabilirsin.' : 'Bir eşleşme bulunamadı. Farklı bir kelime dene.'}</p>`;
- $('#dialog-count').textContent = `${matches.length} yazı`;
+ const matches = articles.filter(a => (!savedMode || saved.has(a.slug)) && searchableText(a).includes(query));
+ $('#dialog-results').innerHTML = matches.length ? matches.map(a => `<a class="dialog-result" href="${base}yazilar/${a.slug}/"><div><p>${escapeHtml(a.field)} · ${a.minutes} dk okuma${a.sample ? ' · Örnek metin' : ''}</p><h3>${escapeHtml(a.title)}</h3></div><span aria-hidden="true">↗</span></a>`).join('') : `<p class="dialog-empty">${savedMode && !saved.size ? 'Henüz kaydedilmiş çalışma bulunmuyor. Çalışmaların yanındaki ayraç simgesinden bir okuma listesi oluşturabilirsiniz.' : 'Arama ölçütlerine uygun çalışma bulunamadı. Farklı bir kavram deneyebilirsiniz.'}</p>`;
+ $('#dialog-count').textContent = `${matches.length} çalışma`;
 }
 function openDialog(mode, trigger) {
  savedMode = mode;
  dialogTrigger = trigger;
- $('#search-title').textContent = mode ? 'Okuma listen.' : 'Bir düşünce ara.';
+ $('#dialog-input').type = 'search';
+ $('#search-title').textContent = mode ? 'Okuma listesi' : 'Arşivde ara';
  $('#dialog-input').value = '';
  renderDialog();
  searchDialog.showModal();
@@ -107,13 +126,13 @@ $('#font-size')?.addEventListener('click', () => {
 });
 $('#share-article')?.addEventListener('click', async () => {
  const url = new URL(location.href); url.hash = '';
- try { await navigator.clipboard.writeText(url.href); toast('Yazının bağlantısı kopyalandı.'); }
+ try { await navigator.clipboard.writeText(url.href); toast('Çalışmanın bağlantısı kopyalandı.'); }
  catch {
   openDialog(false, $('#share-article'));
-  $('#search-title').textContent = 'Yazının bağlantısı';
+  $('#search-title').textContent = 'Çalışmanın bağlantısı';
   $('#dialog-results').replaceChildren();
   const input = $('#dialog-input'); input.type = 'text'; input.value = url.href; input.select();
-  $('#dialog-count').textContent = 'Bağlantıyı seçip kopyalayabilirsin.';
+  $('#dialog-count').textContent = 'Bağlantıyı seçip kopyalayabilirsiniz.';
   searchDialog.addEventListener('close', () => { input.type = 'search'; }, {once:true});
  }
 });

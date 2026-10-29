@@ -2,7 +2,7 @@
   "name": "dusunce-defteri",
   "version": "1.0.0",
   "private": true,
-  "description": "Felsefe yazıları, denemeler ve düşünce notları için kişisel yayın alanı.",
+  "description": "Felsefi araştırmalar ve kuramsal incelemeler için bağımsız akademik çalışma arşivi.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
@@ -10,5 +10,7 @@
     "start": "node scripts/serve.mjs",
     "check": "node --check src/app.js && node --check scripts/build.mjs && node --check scripts/serve.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }
