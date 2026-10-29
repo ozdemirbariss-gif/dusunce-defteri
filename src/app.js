@@ -7,7 +7,7 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const normalize = (value) => value.toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
-const searchableText = article => normalize(`${article.title} ${article.excerpt} ${article.abstract} ${article.field} ${article.category} ${article.type} ${article.keywords.join(' ')}`);
+const searchableText = article => normalize(`${article.title} ${article.excerpt} ${article.abstract} ${article.field} ${article.category} ${article.type} ${article.keywords.join(' ')} ${article.searchText || ''}`);
 function readStorage(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } }
 let saved;
 try { const value = JSON.parse(readStorage(savedKey, '[]')); saved = new Set(Array.isArray(value) ? value.filter(slug => articles.some(a => a.slug === slug)) : []); } catch { saved = new Set(); }

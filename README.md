@@ -1,6 +1,6 @@
 # Düşünce Defteri
 
-Ontoloji, etik, epistemoloji ve estetik alanlarında felsefe çalışmalarını paylaşmak için Türkçe bir akademik arşiv. Lacivert ve bordo tonları, serif metin düzeni, çalışma dizini ve araştırma alanlarından oluşur.
+Ontoloji, etik, epistemoloji, estetik ve zihin felsefesi alanlarında felsefe çalışmalarını paylaşmak için Türkçe bir akademik arşiv. Lacivert ve bordo tonları, serif metin düzeni, çalışma dizini ve araştırma alanlarından oluşur.
 
 ## Yerel kullanım
 
@@ -27,11 +27,13 @@ Her çalışma şu alanları içerir:
 
 - `slug`: Küçük Latin harfleri ve kısa çizgilerle sayfa adresi.
 - `title`, `excerpt`: Çalışma başlığı ve kısa açıklaması.
-- `category`: `Varoluş`, `Etik`, `Bilgi` veya `Estetik`. Bunlar arayüzde Ontoloji ve Varoluş, Etik ve Siyaset Felsefesi, Epistemoloji ve Estetik olarak gösterilir.
+- `category`: `Varoluş`, `Etik`, `Bilgi`, `Estetik` veya `Zihin`. Bunlar arayüzde Ontoloji ve Varoluş, Etik ve Siyaset Felsefesi, Epistemoloji, Estetik ve Zihin Felsefesi olarak gösterilir.
 - `type`, `method`: Çalışma türü ve izlenen yöntem.
 - `abstract`, `keywords`: Özet ve anahtar kelimeler.
-- `sections`: `title`, `paragraphs` ve isteğe bağlı `citations` alanlarıyla metin bölümleri.
-- `references`: Her kaynak için benzersiz `id`, eksiksiz `citation` künyesi ve `https` ile başlayan `url`.
+- `sections`: `title`, `paragraphs` ve isteğe bağlı `citations` alanlarıyla metin bölümleri. Uzun rehberlerde `paragraphs` yerine sıralı `blocks` kullanılabilir: `paragraph` ve `heading` için `text`; `list` için `ordered` ve `items`; `table` için `header` ve `rows`; `callout` için `title` ve `paragraphs` alanları bulunur.
+- `references`: Her kaynak için benzersiz `id`, eksiksiz `citation` künyesi ve varsa `https` ile başlayan `url`. Kaynak belgede adres verilmeyen künyeler bağlantısız sunulur; `primary: true` ana metinleri yıldızla işaretler.
+- `edition`, `referencesIntro`: İsteğe bağlı baskı bilgisi ve kaynakçanın giriş açıklaması.
+- `document`: İsteğe bağlı PDF bilgileri (`file`, `pages`, `label`). Dosyayı `content/documents/` klasörüne ekleyin; derleme dosyayı siteye kopyalar ve indirme bağlantısını oluşturur.
 - `sample`: Örnek metin etiketi.
 - `featured`: Ana sayfada seçili çalışma. Tam olarak bir çalışma için `true` olmalıdır.
 
@@ -39,7 +41,7 @@ Bir bölümün `citations` dizisindeki kimlikler, aynı çalışmanın `referenc
 
 ## Arşiv ve okuma araçları
 
-Başlık, özet, anahtar kelime ve alan araması; alan filtreleri; başlığa veya okuma süresine göre sıralama; kavram dizini; tarayıcıda saklanan okuma listesi; açık/koyu tema; metin boyutu ayarı; bağlantı kopyalama ve yazdırma görünümü bulunur. Genel arama `Ctrl+K` veya `⌘K` ile açılır.
+Başlık, tam metin, özet, anahtar kelime ve alan araması; alan filtreleri; başlığa veya okuma süresine göre sıralama; kavram dizini; tarayıcıda saklanan okuma listesi; açık/koyu tema; metin boyutu ayarı; bağlantı kopyalama ve yazdırma görünümü bulunur. Genel arama `Ctrl+K` veya `⌘K` ile açılır.
 
 Her çalışmanın `yazilar/calisma-adresi/` biçiminde bağımsız bir sayfası vardır. Sayfalarda özet, anahtar kelimeler, içindekiler ve kaynakça sunulur. Kaynak bağlantıları ilgili eserin erişilebilir sürümüne gider. Başlangıç metinleri akademik sunum düzenini örnekler.
 
