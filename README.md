@@ -45,7 +45,7 @@ Başlık, tam metin, özet, anahtar kelime ve alan araması; alan filtreleri; ba
 
 Her çalışmanın `yazilar/calisma-adresi/` biçiminde bağımsız bir sayfası vardır. Sayfalarda özet, anahtar kelimeler, içindekiler ve kaynakça sunulur. Kaynak bağlantıları ilgili eserin erişilebilir sürümüne gider. Başlangıç metinleri akademik sunum düzenini örnekler.
 
-Okuma listesi ve tema yalnızca kullanılan tarayıcıda saklanır. Harici yazı tipi veya görsel yüklenmez; üyelik, izleme ve sunucuya veri gönderimi bulunmaz.
+Okuma listesi ve tema yalnızca kullanılan tarayıcıda saklanır. Harici yazı tipi yüklenmez; üyelik bulunmaz. Ana sayfadaki Videolar bölümünde YouTube'un gizlilik geliştirilmiş oynatıcısı (`youtube-nocookie.com`) kullanılır; oynatıcı YouTube'a bağlantı kurar.
 
 ## Yayımlama
 
