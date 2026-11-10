@@ -1,9 +1,11 @@
 import { mkdir, readFile, writeFile, copyFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'dist');
+const styleVersion = createHash('sha256').update(await readFile(path.join(root, 'src/styles.css'))).digest('hex').slice(0, 12);
 const articles = JSON.parse(await readFile(path.join(root, 'content/articles.json'), 'utf8'));
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fields = { Varoluş: 'Ontoloji ve Varoluş', Etik: 'Etik ve Siyaset Felsefesi', Bilgi: 'Epistemoloji', Estetik: 'Estetik', Zihin: 'Zihin Felsefesi' };
@@ -77,6 +79,7 @@ const featured = articles.find(a => a.featured);
 const featuredHtml = `<article class="featured-article">${metadata(featured)}<h2 id="featured-title"><a href="./yazilar/${featured.slug}/">${escape(featured.title)}</a></h2><p class="abstract-label">ÖZET</p><p class="featured-abstract">${escape(featured.abstract)}</p>${keywords(featured)}<div class="featured-bottom"><a class="text-button" href="./yazilar/${featured.slug}/">Tam metni incele <span aria-hidden="true">→</span></a><span class="sample-label">${featured.sample ? 'ÖRNEK METİN' : escape(featured.type)}</span></div></article>`;
 const cards = articles.map((a, i) => `<article class="article-card" data-slug="${a.slug}" data-category="${escape(a.category)}" data-order="${i}"><span class="entry-number">${String(i + 1).padStart(2, '0')}</span><div class="entry-content">${metadata(a)}<h3><a href="./yazilar/${a.slug}/">${escape(a.title)}</a></h3><p>${escape(a.excerpt)}</p><div class="entry-keywords">${a.keywords.slice(0, 3).map(k => `<span>${escape(k)}</span>`).join('')}</div><div class="card-bottom"><a class="text-button" href="./yazilar/${a.slug}/">Metni incele →</a><span>${a.references.length} kaynak${a.sample ? ' · Örnek metin' : ''}</span></div></div>${saveButton(a)}</article>`).join('\n');
 let home = await readFile(path.join(root, 'src/index.html'), 'utf8');
+home = home.replace('./assets/styles.css', `./assets/styles.css?v=${styleVersion}`);
 home = home.replace('{{HEADER}}', header('./')).replace('{{FOOTER}}', footer('./')).replace('{{DIALOG}}', dialog).replace('{{FEATURED}}', featuredHtml).replace('{{ARTICLE_CARDS}}', cards);
 home = home.replaceAll('{{TOTAL}}', String(articles.length)).replaceAll('{{TOTAL_PADDED}}', String(articles.length).padStart(2, '0')).replace('{{SAMPLE_NOTE}}', articles.some(a => a.sample) ? '<div class="sample-note"><strong>İçerik notu</strong><p>“Örnek metin” etiketli çalışmalar, arşivin akademik sunum düzenini göstermek üzere hazırlanmış başlangıç içerikleridir.</p></div>' : '');
 home = home.replaceAll('{{FIELD_COUNT}}', String(Object.keys(fields).length).padStart(2, '0'));
@@ -95,7 +98,7 @@ for (const a of articles) {
   }).join('');
   const document = a.document ? `<div class="document-banner"><div><span class="eyebrow">${escape(a.edition || 'Çalışma rehberi')}</span><p>${a.document.pages} sayfalık rehber · Tam metin, tablolar ve çalışma programı</p></div><a class="button button-primary" href="../../documents/${escape(a.document.file)}" download>${escape(a.document.label)} <span aria-hidden="true">↓</span></a></div>` : '';
   const html = `<!doctype html>
-<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#172a3c"><title>${escape(a.title)} | Düşünce Defteri</title><meta name="description" content="${escape(a.excerpt)}"><meta property="og:title" content="${escape(a.title)}"><meta property="og:description" content="${escape(a.excerpt)}"><meta property="og:type" content="article"><meta property="og:locale" content="tr_TR"><link rel="icon" href="../../assets/favicon.svg"><link rel="stylesheet" href="../../assets/styles.css"><script type="module" src="../../assets/app.js"></script></head>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#172a3c"><title>${escape(a.title)} | Düşünce Defteri</title><meta name="description" content="${escape(a.excerpt)}"><meta property="og:title" content="${escape(a.title)}"><meta property="og:description" content="${escape(a.excerpt)}"><meta property="og:type" content="article"><meta property="og:locale" content="tr_TR"><link rel="icon" href="../../assets/favicon.svg"><link rel="stylesheet" href="../../assets/styles.css?v=${styleVersion}"><script type="module" src="../../assets/app.js"></script></head>
 <body data-base="../../" data-article="${a.slug}"${a.document ? ' class="study-guide"' : ''}><a class="skip-link" href="#icerik">İçeriğe geç</a><div class="reading-progress" id="reading-progress"></div>${header('../../')}
 <main id="icerik" class="reader wrap"><nav class="breadcrumbs" aria-label="İçerik yolu"><a href="../../">Ana sayfa</a><span aria-hidden="true">/</span><a href="../../#yazilar">Çalışma arşivi</a><span aria-hidden="true">/</span><span>${escape(fields[a.category])}</span></nav>
 <div class="reader-heading">${metadata(a)}<h1>${escape(a.title)}</h1><p class="reader-deck">${escape(a.excerpt)}</p><div class="reader-controls"><span class="sample-label">${a.sample ? 'ÖRNEK METİN · KAVRAMSAL ÇALIŞMA' : escape(a.type)}</span><div><button type="button" class="icon-button" id="font-size" aria-label="Yazı boyutunu büyüt" aria-pressed="false"><span class="font-icon">Aa</span></button>${saveButton(a)}<button class="text-button" type="button" id="share-article">Bağlantıyı kopyala ↗</button></div></div></div>
