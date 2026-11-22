@@ -1,6 +1,6 @@
 # Düşünce Defteri
 
-Ontoloji, etik, epistemoloji, estetik ve zihin felsefesi alanlarında felsefe çalışmalarını paylaşmak için Türkçe bir akademik arşiv. Lacivert ve bordo tonları, serif metin düzeni, çalışma dizini ve araştırma alanlarından oluşur.
+Yapay zekâ araştırmaları, incelemeler, web’den seçilen makaleler ve videolar için Türkçe bağımsız yayın.
 
 ## Yerel kullanım
 
@@ -27,7 +27,7 @@ Her çalışma şu alanları içerir:
 
 - `slug`: Küçük Latin harfleri ve kısa çizgilerle sayfa adresi.
 - `title`, `excerpt`: Çalışma başlığı ve kısa açıklaması.
-- `category`: `Varoluş`, `Etik`, `Bilgi`, `Estetik` veya `Zihin`. Bunlar arayüzde Ontoloji ve Varoluş, Etik ve Siyaset Felsefesi, Epistemoloji, Estetik ve Zihin Felsefesi olarak gösterilir.
+- `category` için `Yapay Zekâ`, `Zihin`, `Varoluş`, `Etik`, `Bilgi` veya `Estetik` değerlerinden birini kullanın.
 - `type`, `method`: Çalışma türü ve izlenen yöntem.
 - `abstract`, `keywords`: Özet ve anahtar kelimeler.
 - `sections`: `title`, `paragraphs` ve isteğe bağlı `citations` alanlarıyla metin bölümleri. Uzun rehberlerde `paragraphs` yerine sıralı `blocks` kullanılabilir: `paragraph` ve `heading` için `text`; `list` için `ordered` ve `items`; `table` için `header` ve `rows`; `callout` için `title` ve `paragraphs` alanları bulunur.
@@ -35,17 +35,28 @@ Her çalışma şu alanları içerir:
 - `edition`, `referencesIntro`: İsteğe bağlı baskı bilgisi ve kaynakçanın giriş açıklaması.
 - `document`: İsteğe bağlı PDF bilgileri (`file`, `pages`, `label`). Dosyayı `content/documents/` klasörüne ekleyin; derleme dosyayı siteye kopyalar ve indirme bağlantısını oluşturur.
 - `sample`: Örnek metin etiketi.
-- `featured`: Ana sayfada seçili çalışma. Tam olarak bir çalışma için `true` olmalıdır.
+- `featured` ana sayfadaki öne çıkan çalışmayı belirler. Tam olarak bir çalışma için `true` olmalıdır. Bu çalışmaya kapak eklemek için `cover` alanına `src/images/` içindeki görselin dosya adını yazın.
 
 Bir bölümün `citations` dizisindeki kimlikler, aynı çalışmanın `references` dizisindeki kaynaklara karşılık gelmelidir. Derleme bu eşleşmeleri kontrol eder. Kaynakça, bölüm bağlantıları, okuma süresi, konu sayaçları ve ilgili çalışmalar otomatik oluşturulur.
 
+## Makale ve video ekleme
+
+`content/library.json` dosyasını düzenleyin. Kayıtlar dosyadaki sırayla görünür.
+
+- `sources` listesinde her makale için `slug`, `title`, `language`, `publisher`, `topic`, `year`, `excerpt` ve `url` alanlarını doldurun. `excerpt` alanına kendi kısa özetinizi, `url` alanına makalenin özgün HTTPS adresini yazın.
+- `videos` listesinde `slug`, `title`, `language`, `publisher`, `topic` ve `excerpt` alanlarını doldurun. YouTube videosu için `youtubeId` alanını kullanın. Kendi videonuzu yayımlamak için MP4 veya WebM dosyasını `content/videos/` klasörüne ekleyin ve `file` alanına dosya adını yazın.
+- Video için `poster` alanına `src/images/` içindeki kapak dosyasının adını yazabilirsiniz. Yerel videoya altyazı eklemek için WebVTT dosyasını `content/videos/` içine koyun ve adını `captions` alanına yazın.
+- `language` alanında `tr` veya `en` gibi bir dil kodu kullanın. `slug` ile medya dosya adlarında küçük Latin harfleri, rakamlar ve kısa çizgiler kullanın.
+
+Değişiklikleri görmek için `npm run build` çalıştırın.
+
 ## Arşiv ve okuma araçları
 
-Başlık, tam metin, özet, anahtar kelime ve alan araması; alan filtreleri; başlığa veya okuma süresine göre sıralama; kavram dizini; tarayıcıda saklanan okuma listesi; açık/koyu tema; metin boyutu ayarı; bağlantı kopyalama ve yazdırma görünümü bulunur. Genel arama `Ctrl+K` veya `⌘K` ile açılır.
+Başlık, tam metin, özet, anahtar kelime ve alan araması; alan filtreleri; başlığa veya okuma süresine göre sıralama; kavram dizini; tarayıcıda saklanan okuma listesi; açık/koyu tema; metin boyutu ayarı; bağlantı kopyalama ve yazdırma görünümü bulunur. Yazıları, seçkideki makaleleri ve videoları tarayan genel arama `Ctrl+K` veya `⌘K` ile açılır.
 
 Her çalışmanın `yazilar/calisma-adresi/` biçiminde bağımsız bir sayfası vardır. Sayfalarda özet, anahtar kelimeler, içindekiler ve kaynakça sunulur. Kaynak bağlantıları ilgili eserin erişilebilir sürümüne gider. Başlangıç metinleri akademik sunum düzenini örnekler.
 
-Okuma listesi ve tema yalnızca kullanılan tarayıcıda saklanır. Harici yazı tipi yüklenmez; üyelik bulunmaz. Ana sayfadaki Videolar bölümünde YouTube'un gizlilik geliştirilmiş oynatıcısı (`youtube-nocookie.com`) kullanılır; oynatıcı YouTube'a bağlantı kurar.
+Okuma listesi ve tema yalnızca kullanılan tarayıcıda saklanır. Harici yazı tipi yüklenmez; üyelik bulunmaz. Videoya tıklandığında YouTube’un gizlilik geliştirilmiş oynatıcısı (`youtube-nocookie.com`) yüklenir. Yerel video dosyaları tarayıcının yerleşik oynatıcısında açılır.
 
 ## Yayımlama
 
@@ -54,7 +65,8 @@ Okuma listesi ve tema yalnızca kullanılan tarayıcıda saklanır. Harici yazı
 ## Kaynak dosyalar
 
 - `content/articles.json`: Çalışma metinleri ve bibliyografik bilgiler.
-- `src/index.html`: Akademik arşiv ana sayfası.
+- `content/library.json` makale seçkisini ve video arşivini içerir.
+- `src/index.html` ana sayfa şablonudur.
 - `src/styles.css`: Görsel düzen ve duyarlı tasarım.
 - `src/app.js`: Arama, filtreleme, sıralama ve okuma araçları.
 - `scripts/build.mjs`: Kaynakları doğrulayan ve statik sayfaları üreten derleme.

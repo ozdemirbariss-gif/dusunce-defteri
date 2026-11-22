@@ -1,4 +1,4 @@
-import { articles } from './content.js';
+import { articles, library } from './content.js';
 
 const base = document.body.dataset.base;
 const savedKey = 'dusunce-defteri-kaydedilenler';
@@ -8,16 +8,35 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
 const normalize = (value) => value.toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
 const searchableText = article => normalize(`${article.title} ${article.excerpt} ${article.abstract} ${article.field} ${article.category} ${article.type} ${article.keywords.join(' ')} ${article.searchText || ''}`);
+const articleBySlug = new Map(articles.map(article => [article.slug, article]));
+const searchEntries = [
+ ...articles.map(article => ({
+  title: article.title,
+  slug: article.slug,
+  href: `${base}yazilar/${article.slug}/`,
+  language: 'tr',
+  meta: `Araştırmalar · ${article.field} · ${article.minutes} dk${article.sample ? ' · Örnek metin' : ''}`,
+  text: searchableText(article)
+ })),
+ ...library.map(entry => ({
+  title: entry.title,
+  href: `${base}#${entry.id}`,
+  language: entry.language,
+  meta: `${entry.kind} · ${entry.publisher}`,
+  text: normalize(`${entry.title} ${entry.excerpt} ${entry.topic} ${entry.publisher} ${entry.kind} ${entry.year ?? ''}`)
+ }))
+];
 function readStorage(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } }
 let saved;
-try { const value = JSON.parse(readStorage(savedKey, '[]')); saved = new Set(Array.isArray(value) ? value.filter(slug => articles.some(a => a.slug === slug)) : []); } catch { saved = new Set(); }
+try { const value = JSON.parse(readStorage(savedKey, '[]')); saved = new Set(Array.isArray(value) ? value.filter(slug => articleBySlug.has(slug)) : []); } catch { saved = new Set(); }
 let toastTimer;
 function toast(message) { const box = $('#toast'); box.textContent = message; box.classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => box.classList.remove('visible'), 2700); }
 function updateSaveButtons() {
  $$('[data-save]').forEach(button => {
   const active = saved.has(button.dataset.save);
   button.setAttribute('aria-pressed', String(active));
-  button.setAttribute('aria-label', active ? 'Çalışmayı okuma listesinden çıkar' : 'Çalışmayı okuma listesine ekle');
+  const title = articleBySlug.get(button.dataset.save).title;
+  button.setAttribute('aria-label', active ? `${title} yazısını okuma listesinden çıkar` : `${title} yazısını okuma listesine ekle`);
  });
 }
 $$('[data-save]').forEach(button => button.addEventListener('click', () => {
@@ -32,7 +51,7 @@ updateSaveButtons();
 function applyTheme(dark) {
  document.body.classList.toggle('dark', dark);
  $$('[data-toggle-theme]').forEach(button => button.setAttribute('aria-label', dark ? 'Açık temaya geç' : 'Koyu temaya geç'));
- $('meta[name="theme-color"]')?.setAttribute('content', '#172a3c');
+ $('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1b1916' : '#f8f7f3');
 }
 applyTheme(readStorage(themeKey, 'light') === 'dark');
 $$('[data-toggle-theme]').forEach(button => button.addEventListener('click', () => {
@@ -41,19 +60,21 @@ $$('[data-toggle-theme]').forEach(button => button.addEventListener('click', () 
  try { localStorage.setItem(themeKey, dark ? 'dark' : 'light'); } catch {}
 }));
 
+const archiveSearch = $('#archive-search');
+const archiveCards = $$('.article-card');
 let activeFilter = 'Tümü';
 function filterArchive() {
- const search = normalize($('#archive-search')?.value.trim() || '');
+ const search = normalize(archiveSearch.value.trim());
  let count = 0;
- $$('.article-card').forEach(card => {
-  const article = articles.find(a => a.slug === card.dataset.slug);
+ archiveCards.forEach(card => {
+  const article = articleBySlug.get(card.dataset.slug);
   const match = (activeFilter === 'Tümü' || article.category === activeFilter) && searchableText(article).includes(search);
   card.hidden = !match;
   if (match) count++;
  });
- if ($('#empty-state')) $('#empty-state').hidden = count !== 0;
- if ($('#result-count')) $('#result-count').textContent = count === articles.length ? `${articles.length} çalışmanın tamamı` : `${articles.length} çalışmadan ${count} tanesi`;
- if ($('#filter-status')) $('#filter-status').textContent = `${count} çalışma gösteriliyor.`;
+ $('#empty-state').hidden = count !== 0;
+ $('#result-count').textContent = `${count} yazı gösteriliyor`;
+ $('#filter-status').textContent = `${count} yazı gösteriliyor.`;
 }
 function setFilter(category) {
  activeFilter = category;
@@ -65,17 +86,17 @@ function setFilter(category) {
  filterArchive();
 }
 $$('[data-filter]').forEach(button => button.addEventListener('click', () => setFilter(button.dataset.filter)));
-$$('[data-topic]').forEach(link => link.addEventListener('click', () => { $('#archive-search').value = ''; setFilter(link.dataset.topic); }));
-$('#archive-search')?.addEventListener('input', filterArchive);
-$('#reset-filters')?.addEventListener('click', () => { $('#archive-search').value = ''; setFilter('Tümü'); $('#archive-search').focus(); });
+$$('[data-topic]').forEach(link => link.addEventListener('click', () => { archiveSearch.value = ''; setFilter(link.dataset.topic); }));
+archiveSearch?.addEventListener('input', filterArchive);
+$('#reset-filters')?.addEventListener('click', () => { archiveSearch.value = ''; setFilter('Tümü'); archiveSearch.focus(); });
 
-$$('[data-keyword]').forEach(link => link.addEventListener('click', () => { $('#archive-search').value = link.dataset.keyword; setFilter('Tümü'); }));
+$$('[data-keyword]').forEach(link => link.addEventListener('click', () => { archiveSearch.value = link.dataset.keyword; setFilter('Tümü'); }));
 $('#archive-sort')?.addEventListener('change', event => {
  const mode = event.target.value;
- const cards = $$('.article-card');
+ const cards = [...archiveCards];
  cards.sort((left, right) => {
-  const a = articles.find(article => article.slug === left.dataset.slug);
-  const b = articles.find(article => article.slug === right.dataset.slug);
+  const a = articleBySlug.get(left.dataset.slug);
+  const b = articleBySlug.get(right.dataset.slug);
   if (mode === 'title') return a.title.localeCompare(b.title, 'tr');
   if (mode === 'reading') return a.minutes - b.minutes || Number(left.dataset.order) - Number(right.dataset.order);
   return Number(left.dataset.order) - Number(right.dataset.order);
@@ -83,35 +104,54 @@ $('#archive-sort')?.addEventListener('change', event => {
  const grid = $('.article-grid');
  cards.forEach(card => grid.append(card));
  const count = cards.filter(card => !card.hidden).length;
- $('#filter-status').textContent = count + ' çalışma, ' + event.target.selectedOptions[0].textContent.toLocaleLowerCase('tr-TR') + ' gösteriliyor.';
+ $('#filter-status').textContent = `${count} yazı gösteriliyor. Sıralama: ${event.target.selectedOptions[0].textContent}.`;
 });
 
+$$('[data-youtube]').forEach(preview => preview.addEventListener('click', event => {
+ if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+ event.preventDefault();
+ const player = document.createElement('iframe');
+ player.src = `https://www.youtube-nocookie.com/embed/${preview.dataset.youtube}?autoplay=1`;
+ player.title = preview.dataset.videoTitle;
+ player.referrerPolicy = 'strict-origin-when-cross-origin';
+ player.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+ player.allowFullscreen = true;
+ preview.replaceWith(player);
+ player.focus();
+}));
+
 const searchDialog = $('#search-dialog');
+const dialogInput = $('#dialog-input');
+const dialogResults = $('#dialog-results');
 let savedMode = false;
 let dialogTrigger;
 function renderDialog() {
- const query = normalize($('#dialog-input').value.trim());
- const matches = articles.filter(a => (!savedMode || saved.has(a.slug)) && searchableText(a).includes(query));
- $('#dialog-results').innerHTML = matches.length ? matches.map(a => `<a class="dialog-result" href="${base}yazilar/${a.slug}/"><div><p>${escapeHtml(a.field)} · ${a.minutes} dk okuma${a.sample ? ' · Örnek metin' : ''}</p><h3>${escapeHtml(a.title)}</h3></div><span aria-hidden="true">↗</span></a>`).join('') : `<p class="dialog-empty">${savedMode && !saved.size ? 'Henüz kaydedilmiş çalışma bulunmuyor. Çalışmaların yanındaki ayraç simgesinden bir okuma listesi oluşturabilirsiniz.' : 'Arama ölçütlerine uygun çalışma bulunamadı. Farklı bir kavram deneyebilirsiniz.'}</p>`;
- $('#dialog-count').textContent = `${matches.length} çalışma`;
+ const query = normalize(dialogInput.value.trim());
+ const matches = searchEntries.filter(entry => (!savedMode || saved.has(entry.slug)) && entry.text.includes(query));
+ dialogResults.innerHTML = matches.length
+  ? matches.map(entry => `<a class="dialog-result" href="${escapeHtml(entry.href)}"><p>${escapeHtml(entry.meta)}</p><h3 lang="${escapeHtml(entry.language)}">${escapeHtml(entry.title)}</h3></a>`).join('')
+  : `<p class="dialog-empty">${savedMode && !saved.size ? 'Okuma listen henüz boş. Bir yazıyı yanındaki ayraç simgesiyle kaydedebilirsin.' : 'Aramana uygun içerik bulunamadı.'}</p>`;
+ $('#dialog-count').textContent = `${matches.length} sonuç`;
 }
 function openDialog(mode, trigger) {
  savedMode = mode;
  dialogTrigger = trigger;
- $('#dialog-input').type = 'search';
- $('#search-title').textContent = mode ? 'Okuma listesi' : 'Arşivde ara';
- $('#dialog-input').value = '';
+ dialogInput.type = 'search';
+ dialogInput.value = '';
+ $('#dialog-input-label').textContent = mode ? 'Okuma listesinde ara' : 'Yazı, makale veya video ara';
+ $('#search-title').textContent = mode ? 'Okuma listesi' : 'Sitede ara';
  renderDialog();
  searchDialog.showModal();
  document.body.style.overflow = 'hidden';
- $('#dialog-input').focus();
+ dialogInput.focus();
 }
 $$('[data-open-search]').forEach(button => button.addEventListener('click', () => openDialog(false, button)));
 $$('[data-open-saved]').forEach(button => button.addEventListener('click', () => openDialog(true, button)));
-$('#dialog-input').addEventListener('input', renderDialog);
+dialogInput.addEventListener('input', () => { if (dialogInput.type === 'search') renderDialog(); });
+dialogResults.addEventListener('click', event => { if (event.target.closest('a')) searchDialog.close(); });
 $$('[data-close-search]').forEach(button => button.addEventListener('click', () => searchDialog.close()));
 searchDialog.addEventListener('click', event => { if (event.target === searchDialog) { const rect = searchDialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) searchDialog.close(); } });
-searchDialog.addEventListener('close', () => { document.body.style.overflow = ''; dialogTrigger?.focus(); });
+searchDialog.addEventListener('close', () => { document.body.style.overflow = ''; dialogTrigger?.focus({ preventScroll: true }); });
 document.addEventListener('keydown', event => {
  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
   event.preventDefault();
@@ -130,10 +170,12 @@ $('#share-article')?.addEventListener('click', async () => {
  catch {
   openDialog(false, $('#share-article'));
   $('#search-title').textContent = 'Çalışmanın bağlantısı';
-  $('#dialog-results').replaceChildren();
-  const input = $('#dialog-input'); input.type = 'text'; input.value = url.href; input.select();
+  $('#dialog-input-label').textContent = 'Çalışmanın bağlantısı';
+  dialogResults.replaceChildren();
+  dialogInput.type = 'text';
+  dialogInput.value = url.href;
+  dialogInput.select();
   $('#dialog-count').textContent = 'Bağlantıyı seçip kopyalayabilirsiniz.';
-  searchDialog.addEventListener('close', () => { input.type = 'search'; }, {once:true});
  }
 });
 if ($('#reading-progress')) {

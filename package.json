@@ -2,7 +2,7 @@
   "name": "dusunce-defteri",
   "version": "1.0.0",
   "private": true,
-  "description": "Felsefi araştırmalar ve kuramsal incelemeler için bağımsız akademik çalışma arşivi.",
+  "description": "Yapay zekâ araştırmaları, makale seçkisi ve videolar için bağımsız yayın.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",

@@ -1,0 +1,46 @@
+{
+  "sources": [
+    {
+      "slug": "dil-modelinin-biyolojisi",
+      "title": "On the Biology of a Large Language Model",
+      "language": "en",
+      "publisher": "Anthropic",
+      "topic": "Yorumlanabilirlik",
+      "year": 2025,
+      "excerpt": "Claude 3.5 Haiku’nun bir yanıta ulaşırken devreye soktuğu ara adımlar, devre izleme yöntemiyle kısmen haritalanıyor.",
+      "url": "https://transformer-circuits.pub/2025/attribution-graphs/biology.html"
+    },
+    {
+      "slug": "yapay-zekada-bilinc",
+      "title": "Consciousness in Artificial Intelligence",
+      "language": "en",
+      "publisher": "Butlin ve ark. · arXiv",
+      "topic": "Yapay zekâ ve bilinç",
+      "year": 2023,
+      "excerpt": "Bilinç kuramlarından türetilen göstergelerle yapay sistemlerin nasıl değerlendirilebileceğini tartışan bir araştırma raporu.",
+      "url": "https://arxiv.org/abs/2308.08708"
+    },
+    {
+      "slug": "attention-is-all-you-need",
+      "title": "Attention Is All You Need",
+      "language": "en",
+      "publisher": "Vaswani ve ark. · arXiv",
+      "topic": "Transformer mimarisi",
+      "year": 2017,
+      "excerpt": "Transformer mimarisini tanıtan ve dikkat mekanizmasının makine çevirisinde nasıl kullanıldığını gösteren çalışma.",
+      "url": "https://arxiv.org/abs/1706.03762"
+    }
+  ],
+  "videos": [
+    {
+      "slug": "dil-modelinin-dusuncelerini-izlemek",
+      "title": "Tracing the thoughts of a large language model",
+      "language": "en",
+      "publisher": "Anthropic",
+      "topic": "Yorumlanabilirlik",
+      "excerpt": "Büyük dil modellerinin iç işleyişine ve yanıt üretirken izledikleri adımlara bir bakış.",
+      "youtubeId": "Bj9BD2D3DzA",
+      "poster": "devre-izleme.webp"
+    }
+  ]
+}
