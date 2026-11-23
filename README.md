@@ -46,7 +46,7 @@ Bir bölümün `citations` dizisindeki kimlikler, aynı çalışmanın `referenc
 - `sources` listesinde her makale için `slug`, `title`, `language`, `publisher`, `topic`, `year`, `excerpt` ve `url` alanlarını doldurun. `excerpt` alanına kendi kısa özetinizi, `url` alanına makalenin özgün HTTPS adresini yazın.
 - `videos` listesinde `slug`, `title`, `language`, `publisher`, `topic` ve `excerpt` alanlarını doldurun. YouTube videosu için `youtubeId` alanını kullanın. Kendi videonuzu yayımlamak için MP4 veya WebM dosyasını `content/videos/` klasörüne ekleyin ve `file` alanına dosya adını yazın.
 - Video için `poster` alanına `src/images/` içindeki kapak dosyasının adını yazabilirsiniz. Yerel videoya altyazı eklemek için WebVTT dosyasını `content/videos/` içine koyun ve adını `captions` alanına yazın.
-- `language` alanında `tr` veya `en` gibi bir dil kodu kullanın. `slug` ile medya dosya adlarında küçük Latin harfleri, rakamlar ve kısa çizgiler kullanın.
+- `language` alanında `tr` veya `en` gibi bir dil kodu kullanın. Video başlığının dili videonun konuşma dilinden farklıysa `titleLanguage` alanına başlığın dil kodunu yazın. `slug` ile medya dosya adlarında küçük Latin harfleri, rakamlar ve kısa çizgiler kullanın.
 
 Değişiklikleri görmek için `npm run build` çalıştırın.
 

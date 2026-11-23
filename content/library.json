@@ -33,6 +33,17 @@
   ],
   "videos": [
     {
+      "slug": "hugging-face-olayi",
+      "title": "Hugging Face olayının incelenmesi ve sonrası",
+      "language": "en",
+      "titleLanguage": "tr",
+      "publisher": "Black Hat",
+      "topic": "Yapay zekâ güvenliği",
+      "excerpt": "Black Hat USA 2026 sunumu, OpenAI ve Hugging Face güvenlik olayını ve olaydan çıkarılan dersleri ele alıyor.",
+      "youtubeId": "87DyyMV0kCY",
+      "poster": "hugging-face-olayi.webp"
+    },
+    {
       "slug": "dil-modelinin-dusuncelerini-izlemek",
       "title": "Tracing the thoughts of a large language model",
       "language": "en",

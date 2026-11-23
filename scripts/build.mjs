@@ -17,6 +17,7 @@ const fields = {
 const shortFields = { Varoluş: 'Ontoloji', Bilgi: 'Epistemoloji' };
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const imagePattern = /^[a-z0-9-]+\.(?:webp|png|jpe?g|avif)$/;
+const languagePattern = /^[a-z]{2,3}(?:-[a-z0-9]+)*$/i;
 const icons = {
   search: '<circle cx="10.7" cy="10.7" r="6.7"/><path d="m16 16 4.5 4.5"/>',
   bookmark: '<path d="M6 4h12v17l-6-4-6 4Z"/>',
@@ -98,7 +99,7 @@ for (const entries of [sources, videos]) {
   for (const entry of entries) {
     if (!slugPattern.test(entry.slug) || entrySlugs.has(entry.slug)) throw new Error(`Geçersiz veya yinelenen içerik adresi: ${entry.slug}`);
     entrySlugs.add(entry.slug);
-    if (!entry.title || !entry.excerpt || !entry.publisher || !entry.topic || !/^[a-z]{2,3}(?:-[a-z0-9]+)*$/i.test(entry.language)) {
+    if (!entry.title || !entry.excerpt || !entry.publisher || !entry.topic || !languagePattern.test(entry.language)) {
       throw new Error(`Eksik içerik bilgisi: ${entry.slug}`);
     }
   }
@@ -111,6 +112,7 @@ for (const video of videos) {
       (video.youtubeId && !/^[a-zA-Z0-9_-]{11}$/.test(video.youtubeId)) ||
       (video.file && !/^[a-z0-9-]+\.(?:mp4|webm)$/.test(video.file)) ||
       (video.captions && (!video.file || !/^[a-z0-9-]+\.vtt$/.test(video.captions))) ||
+      (video.titleLanguage && !languagePattern.test(video.titleLanguage)) ||
       (video.poster && !imagePattern.test(video.poster))) {
     throw new Error(`Geçersiz video bilgisi: ${video.slug}`);
   }
@@ -133,7 +135,9 @@ const articleIndex = articles.map(({ slug, title, excerpt, abstract, category, t
 }));
 const content = `export const articles = ${JSON.stringify(articleIndex)};\nexport const library = ${JSON.stringify([
   ...sources.map(({ slug, title, topic, publisher, excerpt, language, year }) => ({ id: `makale-${slug}`, title, topic, publisher, excerpt, language, kind: 'Makale seçkisi', year })),
-  ...videos.map(({ slug, title, topic, publisher, excerpt, language }) => ({ id: `video-${slug}`, title, topic, publisher, excerpt, language, kind: 'Video' }))
+  ...videos.map(({ slug, title, topic, publisher, excerpt, language, titleLanguage }) => ({
+    id: `video-${slug}`, title, topic, publisher, excerpt, language: titleLanguage || language, kind: 'Video'
+  }))
 ])};\n`;
 await writeFile(path.join(output, 'assets/content.js'), content);
 const appSource = await readFile(path.join(root, 'src/app.js'), 'utf8');
@@ -181,7 +185,7 @@ const videoCards = videos.map(video => {
     <div class="video-player">${player}</div>
     <div class="video-details">
       <div class="article-meta"><span>${escape(video.topic)}</span><span>${escape(video.publisher)}</span><span>${languageName}</span></div>
-      <h3 lang="${language}">${title}</h3><p>${escape(video.excerpt)}</p>
+      <h3 lang="${escape(video.titleLanguage || video.language)}">${title}</h3><p>${escape(video.excerpt)}</p>
       ${video.youtubeId ? `<a class="text-button" href="${watchUrl}" target="_blank" rel="noopener noreferrer">YouTube’da izle<span class="sr-only"> (yeni sekmede açılır)</span></a>` : ''}
     </div>
   </article>`;
