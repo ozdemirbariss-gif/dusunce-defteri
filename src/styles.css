@@ -94,6 +94,11 @@ a, button, input { -webkit-tap-highlight-color: transparent; }
 .site-header nav { gap: clamp(1.1rem, 2.5vw, 2.5rem); font-size: .9rem; font-weight: 550; }
 .site-header nav a { padding-block: .45rem; white-space: nowrap; }
 .site-header nav a:hover { color: var(--accent); }
+.site-header nav a[aria-current="page"] {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: .3em;
+}
 .header-actions { justify-self: end; gap: .18rem; }
 .icon-button {
   width: 2.5rem;
@@ -510,6 +515,75 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
 .related-grid h3 { margin: .4rem 0; font: 1.4rem/1.25 var(--serif); }
 .related-grid .eyebrow { color: var(--accent); }
 
+.ethics-hero { padding-block: clamp(2.5rem, 6vw, 5rem); }
+.ethics-hero h1 {
+  margin: 0 0 .7rem;
+  font: clamp(3.5rem, 8vw, 6.5rem)/.97 var(--serif);
+  letter-spacing: -.065em;
+}
+.ethics-hero p, .ethics-case-heading > p:last-child {
+  max-width: 47rem;
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+}
+.ethics-case {
+  border-top: 1px solid var(--ink);
+  padding-block: clamp(1.7rem, 4vw, 3.2rem) clamp(3rem, 6vw, 5rem);
+}
+.ethics-case-heading { margin-bottom: clamp(1.6rem, 4vw, 2.9rem); }
+.ethics-case-heading h2 {
+  margin: .45rem 0 .7rem;
+  font: clamp(2.4rem, 5.25vw, 4.3rem)/1.07 var(--serif);
+  letter-spacing: -.055em;
+}
+.ethics-layout {
+  display: grid;
+  grid-template-columns: minmax(13rem, 16rem) minmax(0, 47rem);
+  gap: clamp(2rem, 6vw, 5.5rem);
+  align-items: start;
+}
+.ethics-index {
+  position: sticky;
+  top: calc(var(--masthead-height) + 1.25rem);
+  display: grid;
+  gap: .55rem;
+  padding: 1.2rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  background: var(--soft);
+  font-size: .9375rem;
+}
+.ethics-index > .eyebrow { margin-bottom: .2rem; color: var(--muted); }
+.ethics-index > a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: .25em; }
+.ethics-video-link { margin-top: .3rem; }
+.ethics-review {
+  border-top: 1px solid var(--line);
+  padding-block: 1.3rem 1.65rem;
+}
+.ethics-review h3, .ethics-questions h3 {
+  margin: .5rem 0 .85rem;
+  font: clamp(1.65rem, 2.9vw, 2.4rem)/1.12 var(--serif);
+  letter-spacing: -.04em;
+}
+.ethics-review > p { margin: 0 0 .85rem; color: var(--text); }
+.ethics-review > .ethics-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .8rem;
+  margin: 0;
+  font-size: .875rem;
+  color: var(--muted);
+}
+.ethics-meta > .section-label { font-weight: 650; }
+.ethics-review > .ethics-citation { color: var(--muted); font-size: .875rem; }
+.ethics-review:target { border-top-color: var(--accent); }
+.ethics-questions { border-top: 1px solid var(--line); padding-top: 1.15rem; }
+.ethics-questions dl { margin: 0; }
+.ethics-questions dl > div + div { margin-top: .85rem; }
+.ethics-questions dt { font-weight: 650; }
+.ethics-questions dd { color: var(--text); margin: .15rem 0 0; }
+
 @media (max-width: 64rem) {
   .wrap { width: min(100% - 4rem, 78rem); }
   .site-header { gap: .7rem; }
@@ -542,12 +616,15 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
   .reader-sidebar { position: static; max-height: none; }
   .table-of-contents { padding-bottom: .6rem; border-bottom: 1px solid var(--line); }
   .study-details { display: none; }
+  .ethics-layout { grid-template-columns: 1fr; gap: 1.4rem; }
+  .ethics-index { position: static; }
 }
 
 @media (max-width: 31rem) {
   .wordmark { font-size: 1.35rem; gap: .45rem; }
   .wordmark img { width: 2rem; height: 2rem; }
   .site-header nav { font-size: .82rem; }
+  .site-header nav a { padding-block: .45rem; }
   .icon-button { width: 2.3rem; }
   .hero-actions { gap: .9rem 1.1rem; }
   .feature-link { gap: 3rem; }
@@ -562,6 +639,10 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
   *, *::before, *::after { transition: none !important; }
 }
 
+@media (max-width: 24rem) {
+  html { scroll-padding-top: 9rem; }
+}
+
 @media (max-width: 22rem) {
   .wordmark { font-size: 1.18rem; }
   .wordmark img { width: 1.8rem; height: 1.8rem; }
@@ -572,12 +653,12 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
 
 @media print {
   .masthead, .site-footer, .breadcrumbs, .reader-controls, .reader-sidebar, .document-banner,
-  .related-section, .reading-progress, .toast, dialog, .video-player { display: none !important; }
+  .related-section, .reading-progress, .toast, dialog, .video-player, .ethics-index { display: none !important; }
   body, body.dark { background: white; color: black; }
   .wrap { width: 100%; }
   .reader-heading { margin-top: 0; }
   .reader-heading h1 { font-size: 26pt; }
-  .reader-layout { display: block; }
+  .reader-layout, .ethics-layout { display: block; }
   .prose { font-size: 11pt; }
   .prose h2 { color: black; font-size: 16pt; break-after: avoid; }
   .prose h3 { color: black; break-after: avoid; }

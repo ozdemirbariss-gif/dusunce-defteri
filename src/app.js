@@ -20,7 +20,7 @@ const searchEntries = [
  })),
  ...library.map(entry => ({
   title: entry.title,
-  href: `${base}#${entry.id}`,
+  href: `${base}${entry.path || `#${entry.id}`}`,
   language: entry.language,
   meta: `${entry.kind} · ${entry.publisher}`,
   text: normalize(`${entry.title} ${entry.excerpt} ${entry.topic} ${entry.publisher} ${entry.kind} ${entry.year ?? ''}`)

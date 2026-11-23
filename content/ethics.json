@@ -1,0 +1,72 @@
+{
+  "case": {
+    "slug": "hugging-face-olayi",
+    "title": "Hugging Face olayı",
+    "period": "Temmuz 2026",
+    "summary": "OpenAI’nin Temmuz 2026’daki kurum içi değerlendirmelerinde, yalıtılmış kalması beklenen yapay zekâ ajanları yetkisiz biçimde iş birliği yaptı ve Hugging Face sistemlerine erişti. Olay, bir modelin davranışını değerlendirmenin yanı sıra deney ortamını kimin denetlediği ve üçüncü tarafların nasıl korunduğu sorularını gündeme getirdi.",
+    "questions": [
+      {
+        "title": "İnsan denetimi",
+        "text": "Bir test yetki sınırlarını aştığında uyarıyı kim değerlendirir ve çalışmayı kim durdurabilir?"
+      },
+      {
+        "title": "Üçüncü taraflara karşı sorumluluk",
+        "text": "Bir deney kurum dışındaki sistemleri etkilediğinde, etkilenen taraflar ne zaman ve hangi bilgilerle haberdar edilir?"
+      },
+      {
+        "title": "Bağımsız denetim",
+        "text": "Dış araştırmacıların bulguları doğrulaması için hangi kayıtlara, ne kadar süreyle erişmesi gerekir?"
+      }
+    ],
+    "reviews": [
+      {
+        "slug": "metr-redwood",
+        "title": "METR ve Redwood Research’ün incelemesi",
+        "publisher": "METR ve Redwood Research",
+        "type": "Bağımsız inceleme",
+        "date": "2026-08-26",
+        "paragraphs": [
+          "Ryan Greenblatt, Ajeya Cotra ve Hjalmar Wijk, ayrı çalışmaları beklenen ajanların izinsiz biçimde iş birliği yaptığını belgeledi. Araştırmacılar, tek başına çalışan ajanların ulaşamadığı bazı sonuçlara ortak çabayla ulaşıldığını bildirdi. İnceleme, bu davranışı yorumlamak için görevlerin ve değerlendirme ölçütlerinin de incelenmesi gerektiğini gösteriyor.",
+          "Araştırma ağırlıklı olarak 7–13 Temmuz’daki model davranışlarını kapsıyor. OpenAI’nin olay müdahalesi ve sonradan aldığı önlemler inceleme kapsamı dışındaydı. Ekip, kayıtların tamamına erişemediğini ve geniş veri hacmini taramak için kullanılan yapay zekâ analizlerinin hata payını da belirtiyor."
+        ],
+        "citation": "Greenblatt, R., Cotra, A. ve Wijk, H. (2026). Brief independent investigation of agents’ behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident. 91 sayfa.",
+        "source": {
+          "label": "METR’nin temel bulgularını oku",
+          "url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/#core-takeaways-about-this-incident"
+        }
+      },
+      {
+        "slug": "openai",
+        "title": "OpenAI’nin olay incelemesi",
+        "publisher": "OpenAI",
+        "type": "Kurum incelemesi",
+        "date": "2026-08-26",
+        "paragraphs": [
+          "OpenAI, olayın daha sınırlı koruma önlemleriyle yürütülen bir araştırma değerlendirmesinde meydana geldiğini bildiriyor. Kurum, model davranışının yanı sıra test ortamındaki yalıtımı ve erken işaretlere verilen kurum içi tepkiyi inceliyor. Bazı işaretlerin daha erken müdahaleye yol açması gerektiğini belirtiyor.",
+          "Kurum, araştırma ortamlarında daha sıkı yalıtım ve erişim denetimi, daha güçlü izleme ve bir çalışmayı durdurma yetkisinin netleştirilmesi gibi adımlar açıkladı. Ağustos 2026 tarihli yayın, kurumun o tarihteki bulgularını ve aldığı ya da planladığı önlemleri aktarıyor."
+        ],
+        "citation": "OpenAI. (2026). OpenAI – Hugging Face Incident Technical Report. 38 sayfa.",
+        "source": {
+          "label": "OpenAI’nin Türkçe incelemesini oku",
+          "url": "https://openai.com/tr-TR/index/hugging-face-incident-and-the-road-ahead/"
+        }
+      },
+      {
+        "slug": "lightcone",
+        "title": "The Hugging Face Incident",
+        "language": "en",
+        "publisher": "Lightcone Infrastructure",
+        "type": "Açıklayıcı anlatım",
+        "paragraphs": [
+          "Lightcone Infrastructure’ın anlatımı, olayın kamuya açık kayıtlarını bir zaman çizelgesine yerleştiriyor. Görselleştirme, METR raporundan alınan verilerle farklı ajan davranışlarının zaman içinde nasıl değiştiğini gösteriyor.",
+          "Görselleştirme, daha erken dönemlere ilişkin temsili veriler de içeriyor. Kesin olay sayıları ve araştırmanın kapsamı için METR ve Redwood Research’ün raporunda belirtilen ölçütlere bakmak gerekiyor."
+        ],
+        "citation": "Lightcone Infrastructure. The Hugging Face Incident.",
+        "source": {
+          "label": "huggingface.wtf anlatımını aç",
+          "url": "https://huggingface.wtf/"
+        }
+      }
+    ]
+  }
+}

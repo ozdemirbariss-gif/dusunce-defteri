@@ -9,6 +9,8 @@ const versionOf = content => createHash('sha256').update(content).digest('hex').
 const styleVersion = versionOf(await readFile(path.join(root, 'src/styles.css')));
 const articles = JSON.parse(await readFile(path.join(root, 'content/articles.json'), 'utf8'));
 const { sources, videos } = JSON.parse(await readFile(path.join(root, 'content/library.json'), 'utf8'));
+const { case: ethicsCase } = JSON.parse(await readFile(path.join(root, 'content/ethics.json'), 'utf8'));
+const ethicsPath = 'ai-ethics/';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fields = {
   'Yapay Zekâ': 'Yapay Zekâ', Zihin: 'Zihin Felsefesi', Varoluş: 'Ontoloji ve Varoluş',
@@ -46,10 +48,10 @@ const renderBlock = (block, context) => {
 const saveButton = a => `<button class="icon-button save-button" type="button" data-save="${a.slug}" aria-label="${escape(a.title)} çalışmasını kaydet" aria-pressed="false">${svg('bookmark')}</button>`;
 const metadata = a => `<div class="article-meta"><span>${escape(fields[a.category])}</span><span>${escape(a.type)}</span><span>${minutes(a)} dk okuma</span></div>`;
 const keywords = a => `<div class="keywords"><span>Anahtar kelimeler</span>${a.keywords.map(k => `<span>${escape(k)}</span>`).join('')}</div>`;
-const header = base => `<div class="masthead"><header class="site-header wrap">
+const header = (base, currentPage) => `<div class="masthead"><header class="site-header wrap">
   <a class="wordmark" href="${base}" aria-label="Düşünce Defteri ana sayfa"><img src="${base}assets/favicon.svg" alt="" width="38" height="38">Düşünce Defteri</a>
   <nav aria-label="Ana menü">
-    <a href="${base}#yazilar">Araştırmalar</a><a href="${base}#makaleler">Makale Seçkisi</a><a href="${base}#videolar">Videolar</a><a href="${base}#hakkinda">Hakkında</a>
+    <a href="${base}#yazilar">Araştırmalar</a><a href="${base}#makaleler">Makale Seçkisi</a><a href="${base}#videolar">Videolar</a><a href="${base}${ethicsPath}" lang="en"${currentPage === ethicsPath ? ' aria-current="page"' : ''}>AI Ethics</a><a href="${base}#hakkinda">Hakkında</a>
   </nav>
   <div class="header-actions">
     <button class="icon-button" type="button" data-open-search aria-label="Sitede ara" aria-keyshortcuts="Control+K Meta+K">${svg('search')}</button>
@@ -66,6 +68,10 @@ const dialog = `<dialog id="search-dialog" aria-labelledby="search-title">
   <div class="dialog-results" id="dialog-results"></div>
   <div class="dialog-hint">Kapatmak için <kbd>Esc</kbd><span id="dialog-count" role="status"></span></div>
 </dialog>`;
+const renderTemplate = (template, data) => template.replace(/\{\{([A-Z_]+)\}\}/g, (_, name) => {
+  if (!Object.hasOwn(data, name)) throw new Error(`Bilinmeyen sayfa alanı: ${name}`);
+  return data[name];
+});
 
 if (!articles.length || articles.filter(a => a.featured).length !== 1) throw new Error('Tam olarak bir seçili çalışma gerekli.');
 const slugs = new Set();
@@ -118,6 +124,17 @@ for (const video of videos) {
   }
 }
 
+const reviewSlugs = new Set();
+for (const review of ethicsCase.reviews) {
+  if (!slugPattern.test(review.slug) || reviewSlugs.has(review.slug) ||
+      !review.title || !review.publisher || !review.type || !review.paragraphs?.length ||
+      !review.citation || !review.source?.label || new URL(review.source.url).protocol !== 'https:' ||
+      (review.language && !languagePattern.test(review.language))) {
+    throw new Error(`Geçersiz etik incelemesi: ${review.slug}`);
+  }
+  reviewSlugs.add(review.slug);
+}
+
 await rm(output, { recursive: true, force: true });
 await mkdir(path.join(output, 'assets'), { recursive: true });
 for (const file of ['styles.css', 'favicon.svg']) await copyFile(path.join(root, 'src', file), path.join(output, 'assets', file));
@@ -137,6 +154,15 @@ const content = `export const articles = ${JSON.stringify(articleIndex)};\nexpor
   ...sources.map(({ slug, title, topic, publisher, excerpt, language, year }) => ({ id: `makale-${slug}`, title, topic, publisher, excerpt, language, kind: 'Makale seçkisi', year })),
   ...videos.map(({ slug, title, topic, publisher, excerpt, language, titleLanguage }) => ({
     id: `video-${slug}`, title, topic, publisher, excerpt, language: titleLanguage || language, kind: 'Video'
+  })),
+  ...ethicsCase.reviews.map(review => ({
+    path: `${ethicsPath}#${review.slug}`,
+    title: review.title,
+    topic: ethicsCase.title,
+    publisher: review.publisher,
+    excerpt: review.paragraphs.join(' '),
+    language: review.language || 'tr',
+    kind: 'AI Ethics'
   }))
 ])};\n`;
 await writeFile(path.join(output, 'assets/content.js'), content);
@@ -211,11 +237,45 @@ const fragments = {
   FILTERS: areas.map(({ category }) => `<button class="filter" type="button" data-filter="${escape(category)}" aria-pressed="false">${escape(shortFields[category] || category)}</button>`).join(''),
   TOPICS: areas.map(({ category, label, count }) => `<a href="#yazilar" data-topic="${escape(category)}">${escape(label)} <span>${count}</span></a>`).join('')
 };
-home = home.replace(/\{\{([A-Z_]+)\}\}/g, (_, name) => {
-  if (!Object.hasOwn(fragments, name)) throw new Error(`Bilinmeyen sayfa alanı: ${name}`);
-  return fragments[name];
-});
-await writeFile(path.join(output, 'index.html'), home);
+await writeFile(path.join(output, 'index.html'), renderTemplate(home, fragments));
+
+const ethicsDate = new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long', timeZone: 'UTC' });
+const reviewsHtml = ethicsCase.reviews.map(review => `<section class="ethics-review" id="${review.slug}" aria-labelledby="${review.slug}-title">
+  <p class="ethics-meta"><span class="section-label">${escape(review.type)}</span><span>${escape(review.publisher)}</span>${review.date
+    ? `<time datetime="${escape(review.date)}">${ethicsDate.format(new Date(review.date))}</time>` : ''}</p>
+  <h3 id="${review.slug}-title" lang="${escape(review.language || 'tr')}">${escape(review.title)}</h3>
+  ${review.paragraphs.map(paragraph => `<p>${escape(paragraph)}</p>`).join('')}
+  <p class="ethics-citation">${escape(review.citation)}</p>
+  <a class="text-button" href="${escape(review.source.url)}" target="_blank" rel="noopener noreferrer">${escape(review.source.label)}<span class="sr-only"> (yeni sekmede açılır)</span></a>
+</section>`).join('\n');
+const caseHtml = `<article class="ethics-case" id="${escape(ethicsCase.slug)}" aria-labelledby="ethics-case-title">
+  <header class="ethics-case-heading">
+    <p class="eyebrow section-label">Vaka incelemesi · ${escape(ethicsCase.period)}</p>
+    <h2 id="ethics-case-title">${escape(ethicsCase.title)}</h2>
+    <p>${escape(ethicsCase.summary)}</p>
+  </header>
+  <div class="ethics-layout">
+    <nav class="ethics-index" aria-label="Dosya içindekiler">
+      <p class="eyebrow">Bu dosyada</p>
+      ${ethicsCase.reviews.map(review => `<a href="#${review.slug}">${escape(review.publisher)}</a>`).join('')}
+      <a href="#etik-sorular">Etik sorular</a>
+      <a class="text-button ethics-video-link" href="../#video-hugging-face-olayi">İlgili sunumu izle</a>
+    </nav>
+    <div class="ethics-reviews">
+      ${reviewsHtml}
+      <section class="ethics-questions" id="etik-sorular" aria-labelledby="etik-sorular-title">
+        <h3 id="etik-sorular-title">Olayın gündeme getirdiği etik sorular</h3>
+        <dl>${ethicsCase.questions.map(question => `<div><dt>${escape(question.title)}</dt><dd>${escape(question.text)}</dd></div>`).join('')}</dl>
+      </section>
+    </div>
+  </div>
+</article>`;
+const ethicsTemplate = await readFile(path.join(root, 'src/ai-ethics.html'), 'utf8');
+await mkdir(path.join(output, ethicsPath), { recursive: true });
+await writeFile(path.join(output, ethicsPath, 'index.html'), renderTemplate(ethicsTemplate, {
+  HEADER: header('../', ethicsPath), FOOTER: footer('../'), DIALOG: dialog, CASE: caseHtml,
+  STYLE_VERSION: styleVersion, APP_VERSION: appVersion
+}));
 
 for (const a of articles) {
   const dir = path.join(output, 'yazilar', a.slug);
