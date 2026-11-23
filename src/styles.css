@@ -591,9 +591,9 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
   .hero { gap: 1.8rem; }
 }
 
-@media (max-width: 50rem) {
+@media (max-width: 54rem) {
+  :root { --masthead-height: 6.75rem; }
   html { scroll-padding-top: 8rem; }
-  .wrap { width: calc(100% - 2.5rem); }
   .site-header { grid-template-columns: minmax(0, 1fr) auto; min-height: auto; padding-top: .7rem; gap: .4rem 0; }
   .site-header nav {
     grid-column: 1 / -1;
@@ -604,6 +604,10 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
     padding-bottom: .35rem;
   }
   .site-header nav a { padding-block: .6rem; }
+}
+
+@media (max-width: 50rem) {
+  .wrap { width: calc(100% - 2.5rem); }
   .hero { grid-template-columns: 1fr; gap: 2rem; padding-block: 2.55rem 2.65rem; }
   .hero h1 { font-size: clamp(3rem, 9.1vw, 4.5rem); margin-bottom: 1.05rem; }
   .feature-link { min-height: 15.5rem; }
