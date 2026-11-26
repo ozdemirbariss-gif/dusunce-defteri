@@ -53,7 +53,7 @@ const saveButton = a => `<button class="icon-button save-button" type="button" d
 const metadata = a => `<div class="article-meta"><span>${escape(fields[a.category])}</span><span>${escape(a.type)}</span><span>${minutes(a)} dk okuma</span></div>`;
 const keywords = a => `<div class="keywords"><span>Anahtar kelimeler</span>${a.keywords.map(k => `<span>${escape(k)}</span>`).join('')}</div>`;
 const header = (base, currentPage) => `<div class="masthead"><header class="site-header wrap">
-  <a class="wordmark" href="${base}" aria-label="${siteName} ana sayfa"><img src="${base}assets/favicon.svg?v=${faviconVersion}" alt="" width="38" height="38"><span lang="en">${siteName}</span></a>
+  <a class="wordmark" href="${base}" aria-label="${siteName} ana sayfa"><span lang="en">${siteName}</span></a>
   <nav aria-label="Ana menü">
     <a href="${base}#yazilar">Araştırmalar</a><a href="${base}#makaleler">Makale Seçkisi</a><a href="${base}#videolar">Videolar</a><a href="${base}${ethicsPath}"${currentPage === ethicsPath ? ' aria-current="page"' : ''}>${ethicsLabel}</a><a href="${base}#hakkinda">Hakkında</a>
   </nav>
