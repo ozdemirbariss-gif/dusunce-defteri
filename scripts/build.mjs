@@ -7,10 +7,14 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'dist');
 const versionOf = content => createHash('sha256').update(content).digest('hex').slice(0, 12);
 const styleVersion = versionOf(await readFile(path.join(root, 'src/styles.css')));
+const faviconVersion = versionOf(await readFile(path.join(root, 'src/favicon.svg')));
+const siteName = 'AI Ethics';
+const defaultThemeColor = '#152e3c';
 const articles = JSON.parse(await readFile(path.join(root, 'content/articles.json'), 'utf8'));
 const { sources, videos } = JSON.parse(await readFile(path.join(root, 'content/library.json'), 'utf8'));
 const { case: ethicsCase } = JSON.parse(await readFile(path.join(root, 'content/ethics.json'), 'utf8'));
 const ethicsPath = 'ai-ethics/';
+const ethicsLabel = 'Etik Dosyaları';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fields = {
   'Yapay Zekâ': 'Yapay Zekâ', Zihin: 'Zihin Felsefesi', Varoluş: 'Ontoloji ve Varoluş',
@@ -49,18 +53,18 @@ const saveButton = a => `<button class="icon-button save-button" type="button" d
 const metadata = a => `<div class="article-meta"><span>${escape(fields[a.category])}</span><span>${escape(a.type)}</span><span>${minutes(a)} dk okuma</span></div>`;
 const keywords = a => `<div class="keywords"><span>Anahtar kelimeler</span>${a.keywords.map(k => `<span>${escape(k)}</span>`).join('')}</div>`;
 const header = (base, currentPage) => `<div class="masthead"><header class="site-header wrap">
-  <a class="wordmark" href="${base}" aria-label="Düşünce Defteri ana sayfa"><img src="${base}assets/favicon.svg" alt="" width="38" height="38">Düşünce Defteri</a>
+  <a class="wordmark" href="${base}" aria-label="${siteName} ana sayfa"><img src="${base}assets/favicon.svg?v=${faviconVersion}" alt="" width="38" height="38"><span lang="en">${siteName}</span></a>
   <nav aria-label="Ana menü">
-    <a href="${base}#yazilar">Araştırmalar</a><a href="${base}#makaleler">Makale Seçkisi</a><a href="${base}#videolar">Videolar</a><a href="${base}${ethicsPath}" lang="en"${currentPage === ethicsPath ? ' aria-current="page"' : ''}>AI Ethics</a><a href="${base}#hakkinda">Hakkında</a>
+    <a href="${base}#yazilar">Araştırmalar</a><a href="${base}#makaleler">Makale Seçkisi</a><a href="${base}#videolar">Videolar</a><a href="${base}${ethicsPath}"${currentPage === ethicsPath ? ' aria-current="page"' : ''}>${ethicsLabel}</a><a href="${base}#hakkinda">Hakkında</a>
   </nav>
   <div class="header-actions">
     <button class="icon-button" type="button" data-open-search aria-label="Sitede ara" aria-keyshortcuts="Control+K Meta+K">${svg('search')}</button>
     <button class="icon-button" type="button" data-open-saved aria-label="Okuma listesi">${svg('bookmark')}</button>
-    <button class="icon-button" type="button" data-toggle-theme aria-label="Koyu temaya geç">${svg('sun')}</button>
+    <button class="icon-button" type="button" data-toggle-theme aria-label="Açık temaya geç">${svg('sun')}</button>
   </div>
 </header></div>`;
 const footer = base => `<footer class="site-footer"><div class="wrap footer-layout">
-  <a class="footer-name" href="${base}">Düşünce Defteri</a><span>© ${new Date().getUTCFullYear()} Düşünce Defteri</span>
+  <a class="footer-name" href="${base}" lang="en">${siteName}</a><span>© ${new Date().getUTCFullYear()} <span lang="en">${siteName}</span></span>
 </div></footer><div class="toast" id="toast" role="status" aria-live="polite"></div>`;
 const dialog = `<dialog id="search-dialog" aria-labelledby="search-title">
   <div class="dialog-top"><h2 id="search-title">Sitede ara</h2><button class="icon-button" data-close-search type="button" aria-label="Pencereyi kapat">${svg('close')}</button></div>
@@ -162,7 +166,7 @@ const content = `export const articles = ${JSON.stringify(articleIndex)};\nexpor
     publisher: review.publisher,
     excerpt: review.paragraphs.join(' '),
     language: review.language || 'tr',
-    kind: 'AI Ethics'
+    kind: `${ethicsLabel} · ${siteName}`
   }))
 ])};\n`;
 await writeFile(path.join(output, 'assets/content.js'), content);
@@ -223,13 +227,16 @@ const cards = articles.map((a, i) => `<article class="article-card" data-slug="$
   </div>
   ${saveButton(a)}
 </article>`).join('\n');
-let home = await readFile(path.join(root, 'src/index.html'), 'utf8');
-home = home.replace('./assets/styles.css', `./assets/styles.css?v=${styleVersion}`)
-  .replace('./assets/app.js', `./assets/app.js?v=${appVersion}`);
+const siteFragments = {
+  SITE_NAME: siteName, ETHICS_LABEL: ethicsLabel, THEME_COLOR: defaultThemeColor,
+  FAVICON_VERSION: faviconVersion, STYLE_VERSION: styleVersion, APP_VERSION: appVersion
+};
+const home = await readFile(path.join(root, 'src/index.html'), 'utf8');
 const areas = Object.entries(fields)
   .map(([category, label]) => ({ category, label, count: articles.filter(a => a.category === category).length }))
   .filter(area => area.count > 0);
 const fragments = {
+  ...siteFragments,
   HEADER: header('./'), FOOTER: footer('./'), DIALOG: dialog, FEATURED: featuredHtml,
   ARTICLE_CARDS: cards, SOURCES: sourceCards || '<p>Henüz makale eklenmedi.</p>',
   VIDEOS: videoCards || '<p>Henüz video eklenmedi.</p>',
@@ -273,8 +280,8 @@ const caseHtml = `<article class="ethics-case" id="${escape(ethicsCase.slug)}" a
 const ethicsTemplate = await readFile(path.join(root, 'src/ai-ethics.html'), 'utf8');
 await mkdir(path.join(output, ethicsPath), { recursive: true });
 await writeFile(path.join(output, ethicsPath, 'index.html'), renderTemplate(ethicsTemplate, {
-  HEADER: header('../', ethicsPath), FOOTER: footer('../'), DIALOG: dialog, CASE: caseHtml,
-  STYLE_VERSION: styleVersion, APP_VERSION: appVersion
+  ...siteFragments,
+  HEADER: header('../', ethicsPath), FOOTER: footer('../'), DIALOG: dialog, CASE: caseHtml
 }));
 
 for (const a of articles) {
@@ -289,7 +296,7 @@ for (const a of articles) {
   }).join('');
   const document = a.document ? `<div class="document-banner"><div><span class="eyebrow">${escape(a.edition || 'Çalışma rehberi')}</span><p>${a.document.pages} sayfalık rehber · Tam metin, tablolar ve çalışma programı</p></div><a class="button button-primary" href="../../documents/${escape(a.document.file)}" download>${escape(a.document.label)}</a></div>` : '';
   const html = `<!doctype html>
-<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f8f7f3"><title>${escape(a.title)} | Düşünce Defteri</title><meta name="description" content="${escape(a.excerpt)}"><meta property="og:title" content="${escape(a.title)}"><meta property="og:description" content="${escape(a.excerpt)}"><meta property="og:type" content="article"><meta property="og:locale" content="tr_TR"><link rel="icon" href="../../assets/favicon.svg"><link rel="stylesheet" href="../../assets/styles.css?v=${styleVersion}"><script type="module" src="../../assets/app.js?v=${appVersion}"></script></head>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="${defaultThemeColor}"><title>${escape(a.title)} | ${siteName}</title><meta name="description" content="${escape(a.excerpt)}"><meta property="og:title" content="${escape(a.title)}"><meta property="og:site_name" content="${siteName}"><meta property="og:description" content="${escape(a.excerpt)}"><meta property="og:type" content="article"><meta property="og:locale" content="tr_TR"><link rel="icon" href="../../assets/favicon.svg?v=${faviconVersion}"><link rel="stylesheet" href="../../assets/styles.css?v=${styleVersion}"><script type="module" src="../../assets/app.js?v=${appVersion}"></script></head>
 <body data-base="../../" data-article="${a.slug}"${a.document ? ' class="study-guide"' : ''}><a class="skip-link" href="#icerik">İçeriğe geç</a><div class="reading-progress" id="reading-progress"></div>${header('../../')}
 <main id="icerik" class="reader wrap"><nav class="breadcrumbs" aria-label="İçerik yolu"><a href="../../">Ana sayfa</a><span aria-hidden="true">/</span><a href="../../#yazilar">Çalışma arşivi</a><span aria-hidden="true">/</span><span>${escape(fields[a.category])}</span></nav>
 <div class="reader-heading">${metadata(a)}<h1>${escape(a.title)}</h1><p class="reader-deck">${escape(a.excerpt)}</p><div class="reader-controls"><span class="sample-label">${a.sample ? 'ÖRNEK METİN · KAVRAMSAL ÇALIŞMA' : escape(a.type)}</span><div><button type="button" class="icon-button" id="font-size" aria-label="Yazı boyutunu büyüt" aria-pressed="false"><span class="font-icon">Aa</span></button>${saveButton(a)}<button class="text-button" type="button" id="share-article">Bağlantıyı kopyala</button></div></div></div>
@@ -298,5 +305,5 @@ ${document}<div class="reader-layout"><aside class="reader-sidebar"><nav class="
 <section class="related-section" aria-labelledby="related-title"><span class="eyebrow">İLGİLİ ÇALIŞMALAR</span><h2 id="related-title">Arşivden diğer incelemeler</h2><div class="related-grid">${related.map(b => `<a href="../${b.slug}/"><span class="eyebrow">${escape(fields[b.category])}</span><h3>${escape(b.title)}</h3></a>`).join('')}</div></section></main>${footer('../../')}${dialog}</body></html>`;
   await writeFile(path.join(dir, 'index.html'), html);
 }
-await writeFile(path.join(output, '404.html'), `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sayfa bulunamadı | Düşünce Defteri</title><style>body{font:18px Georgia,serif;background:#f8f7f3;color:#201e1b;max-width:650px;margin:15vh auto;padding:32px}h1{font-size:40px;font-weight:400}a{color:#9c4027}p{line-height:1.8}</style></head><body><p>DÜŞÜNCE DEFTERİ / 404</p><h1>İstenen çalışma bulunamadı.</h1><p>Bağlantı değişmiş veya çalışma arşivden kaldırılmış olabilir.</p><a id="home" href="/">Çalışma arşivine dön</a><script>const p=location.pathname.split('/').filter(Boolean);document.getElementById('home').href=location.hostname.endsWith('.github.io')&&p.length?'/'+p[0]+'/':'/';</script></body></html>`);
+await writeFile(path.join(output, '404.html'), `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="${defaultThemeColor}"><title>Sayfa bulunamadı | ${siteName}</title><style>body{font:18px Georgia,serif;background:${defaultThemeColor};color:#f0f5f5;max-width:650px;margin:15vh auto;padding:32px}h1{font-size:40px;font-weight:400}a{color:#eda780}p{line-height:1.8}</style></head><body><p><span lang="en">${siteName}</span> / 404</p><h1>İstenen çalışma bulunamadı.</h1><p>Bağlantı değişmiş veya çalışma arşivden kaldırılmış olabilir.</p><a id="home" href="/">Çalışma arşivine dön</a><script>const p=location.pathname.split('/').filter(Boolean);document.getElementById('home').href=location.hostname.endsWith('.github.io')&&p.length?'/'+p[0]+'/':'/';</script></body></html>`);
 console.log(`${articles.length} yazı, ${sources.length} makale bağlantısı ve ${videos.length} video dist/ klasörüne hazırlandı.`);

@@ -1,4 +1,4 @@
-# Düşünce Defteri
+# AI Ethics
 
 Yapay zekâ araştırmaları, incelemeler, web’den seçilen makaleler ve videolar için Türkçe bağımsız yayın.
 

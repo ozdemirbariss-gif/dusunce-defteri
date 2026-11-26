@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f7f3">
+  <meta name="theme-color" content="{{THEME_COLOR}}">
   <meta name="description" content="Yapay zekâ etiği ve güvenliği üzerine vaka incelemeleri. Hugging Face olayına ilişkin METR, OpenAI ve Lightcone Infrastructure kaynakları.">
-  <meta property="og:title" content="AI Ethics | Düşünce Defteri">
+  <meta property="og:title" content="{{ETHICS_LABEL}} | {{SITE_NAME}}">
+  <meta property="og:site_name" content="{{SITE_NAME}}">
   <meta property="og:description" content="Hugging Face olayı üzerine incelemeler ve yapay zekâ etiği açısından çıkarımlar.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="tr_TR">
-  <title>AI Ethics | Düşünce Defteri</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <title>{{ETHICS_LABEL}} | {{SITE_NAME}}</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg?v={{FAVICON_VERSION}}">
   <link rel="stylesheet" href="../assets/styles.css?v={{STYLE_VERSION}}">
   <script type="module" src="../assets/app.js?v={{APP_VERSION}}"></script>
 </head>
@@ -19,10 +20,10 @@
   {{HEADER}}
   <main id="icerik" class="wrap ethics-page">
     <nav class="breadcrumbs" aria-label="İçerik yolu">
-      <a href="../">Ana sayfa</a><span aria-hidden="true">/</span><span lang="en" aria-current="page">AI Ethics</span>
+      <a href="../">Ana sayfa</a><span aria-hidden="true">/</span><span aria-current="page">{{ETHICS_LABEL}}</span>
     </nav>
     <header class="ethics-hero">
-      <h1 lang="en">AI Ethics</h1>
+      <h1>{{ETHICS_LABEL}}</h1>
       <p>Yapay zekâ güvenliği, insan denetimi ve hesap verebilirlik üzerine vaka incelemeleri.</p>
     </header>
     {{CASE}}

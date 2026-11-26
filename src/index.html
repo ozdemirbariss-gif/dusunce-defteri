@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f7f3">
+  <meta name="theme-color" content="{{THEME_COLOR}}">
   <meta name="description" content="Yapay zekâ üzerine bağımsız araştırmalar, kaynaklarıyla birlikte makale seçkisi ve videolar.">
-  <meta property="og:title" content="Düşünce Defteri | Yapay Zekâ Araştırmaları">
+  <meta property="og:title" content="{{SITE_NAME}} | Yapay Zekâ Araştırmaları">
+  <meta property="og:site_name" content="{{SITE_NAME}}">
   <meta property="og:description" content="Yapay zekâ araştırmaları, makale seçkisi ve videolar.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="tr_TR">
-  <title>Düşünce Defteri | Yapay Zekâ Araştırmaları</title>
-  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
-  <link rel="stylesheet" href="./assets/styles.css">
-  <script type="module" src="./assets/app.js"></script>
+  <title>{{SITE_NAME}} | Yapay Zekâ Araştırmaları</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg?v={{FAVICON_VERSION}}">
+  <link rel="stylesheet" href="./assets/styles.css?v={{STYLE_VERSION}}">
+  <script type="module" src="./assets/app.js?v={{APP_VERSION}}"></script>
 </head>
 <body data-base="./">
   <a class="skip-link" href="#icerik">İçeriğe geç</a>
@@ -52,7 +53,7 @@
       <div class="archive-layout wrap">
         <section id="yazilar" class="journal-section" aria-labelledby="journal-title">
           <div class="section-heading">
-            <div><p class="eyebrow section-label">Düşünce Defteri’nden</p><h2 id="journal-title">Araştırmalar ve incelemeler</h2></div>
+            <h2 id="journal-title">Araştırmalar ve incelemeler</h2>
             <span class="section-count">{{TOTAL}} yazı</span>
           </div>
           <div class="archive-tools">
@@ -107,8 +108,8 @@
     </div>
 
     <section id="hakkinda" class="about wrap" aria-labelledby="about-title">
-      <h2 id="about-title">Defter hakkında</h2>
-      <p>Düşünce Defteri, yapay zekâ araştırmalarımı ve okumalarımı bir araya getirdiğim kişisel bir yayın. Dil modellerinin nasıl çalıştığı, yapay sistemlerde bilinç ve zekâdan söz ederken neyi kastettiğimiz üzerine çalışıyorum.</p>
+      <h2 id="about-title">Yayın hakkında</h2>
+      <p><span lang="en">{{SITE_NAME}}</span>, yapay zekâ araştırmalarımı ve okumalarımı bir araya getirdiğim kişisel bir yayın. Dil modellerinin nasıl çalıştığı, yapay sistemlerde bilinç ve zekâdan söz ederken neyi kastettiğimiz üzerine çalışıyorum.</p>
     </section>
   </main>
   {{FOOTER}}

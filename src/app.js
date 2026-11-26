@@ -49,13 +49,14 @@ $$('[data-save]').forEach(button => button.addEventListener('click', () => {
 }));
 updateSaveButtons();
 function applyTheme(dark) {
- document.body.classList.toggle('dark', dark);
+ const root = document.documentElement;
+ root.dataset.theme = dark ? 'dark' : 'light';
  $$('[data-toggle-theme]').forEach(button => button.setAttribute('aria-label', dark ? 'Açık temaya geç' : 'Koyu temaya geç'));
- $('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1b1916' : '#f8f7f3');
+ $('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(root).getPropertyValue('--paper').trim());
 }
-applyTheme(readStorage(themeKey, 'light') === 'dark');
+applyTheme(readStorage(themeKey, 'dark') !== 'light');
 $$('[data-toggle-theme]').forEach(button => button.addEventListener('click', () => {
- const dark = !document.body.classList.contains('dark');
+ const dark = document.documentElement.dataset.theme === 'light';
  applyTheme(dark);
  try { localStorage.setItem(themeKey, dark ? 'dark' : 'light'); } catch {}
 }));
