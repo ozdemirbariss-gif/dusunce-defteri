@@ -9,8 +9,12 @@ const versionOf = content => createHash('sha256').update(content).digest('hex').
 const styleVersion = versionOf(await readFile(path.join(root, 'src/styles.css')));
 const logoFile = 'ai-ethics-mark.svg';
 const tabFile = 'ai-ethics-tab.png';
-const versionedImage = async file => `assets/${file}?v=${versionOf(await readFile(path.join(root, 'src/images', file)))}`;
-const [logoAsset, tabAsset] = await Promise.all([versionedImage(logoFile), versionedImage(tabFile)]);
+const [logoImage, tabImage] = await Promise.all([
+  readFile(path.join(root, 'src/images', logoFile)),
+  readFile(path.join(root, 'src/images', tabFile))
+]);
+const logoAsset = `assets/${logoFile}?v=${versionOf(logoImage)}`;
+const tabAsset = `assets/ai-ethics-tab-${versionOf(tabImage)}.png`;
 const siteName = 'AI Ethics';
 const defaultThemeColor = '#152e3c';
 const articles = JSON.parse(await readFile(path.join(root, 'content/articles.json'), 'utf8'));
@@ -152,14 +156,20 @@ const ethicsResearch = ethicsResearchSlugs.map(slug => {
 
 await rm(output, { recursive: true, force: true });
 await mkdir(path.join(output, 'assets'), { recursive: true });
-for (const file of ['styles.css', 'favicon.svg']) await copyFile(path.join(root, 'src', file), path.join(output, 'assets', file));
+await Promise.all([
+  copyFile(path.join(root, 'src/styles.css'), path.join(output, 'assets/styles.css')),
+  writeFile(path.join(output, 'assets', logoFile), logoImage),
+  writeFile(path.join(output, tabAsset), tabImage),
+  writeFile(path.join(output, 'assets/favicon.svg'), logoImage),
+  writeFile(path.join(output, 'assets', tabFile), tabImage)
+]);
 const videoFiles = new Set(videos.flatMap(video => [video.file, video.captions].filter(Boolean)));
 if (videoFiles.size) {
   await mkdir(path.join(output, 'videos'));
   for (const file of videoFiles) await copyFile(path.join(root, 'content/videos', file), path.join(output, 'videos', file));
 }
 const featured = articles.find(a => a.featured);
-const images = new Set([logoFile, tabFile, featured.cover, ...videos.map(video => video.poster)].filter(Boolean));
+const images = new Set([featured.cover, ...videos.map(video => video.poster)].filter(Boolean));
 for (const image of images) await copyFile(path.join(root, 'src/images', image), path.join(output, 'assets', image));
 const articleIndex = articles.map(({ slug, title, excerpt, abstract, category, type, keywords, sections, sample }) => ({
   slug, title, excerpt, abstract, category, type, keywords, sample,
