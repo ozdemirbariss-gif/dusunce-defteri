@@ -7,9 +7,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'dist');
 const versionOf = content => createHash('sha256').update(content).digest('hex').slice(0, 12);
 const styleVersion = versionOf(await readFile(path.join(root, 'src/styles.css')));
-const logoFile = 'ai-ethics-logo.png';
-const logoVersion = versionOf(await readFile(path.join(root, 'src/images', logoFile)));
-const logoAsset = `assets/${logoFile}?v=${logoVersion}`;
+const logoFile = 'ai-ethics-mark.svg';
+const tabFile = 'ai-ethics-tab.png';
+const versionedImage = async file => `assets/${file}?v=${versionOf(await readFile(path.join(root, 'src/images', file)))}`;
+const [logoAsset, tabAsset] = await Promise.all([versionedImage(logoFile), versionedImage(tabFile)]);
 const siteName = 'AI Ethics';
 const defaultThemeColor = '#152e3c';
 const articles = JSON.parse(await readFile(path.join(root, 'content/articles.json'), 'utf8'));
@@ -56,7 +57,7 @@ const metadata = a => `<div class="article-meta"><span>${escape(fields[a.categor
 const keywords = a => `<div class="keywords"><span>Anahtar kelimeler</span>${a.keywords.map(k => `<span>${escape(k)}</span>`).join('')}</div>`;
 const header = (base, currentPage) => `<div class="masthead"><header class="site-header wrap">
   <a class="wordmark" href="${base}" aria-label="${siteName} ana sayfa">
-    <img src="${base}${logoAsset}" alt="" width="38" height="38">
+    <img src="${base}${logoAsset}" alt="" width="34" height="34">
     <span lang="en">${siteName}</span>
   </a>
   <nav aria-label="Ana menü">
@@ -153,7 +154,7 @@ if (videoFiles.size) {
   for (const file of videoFiles) await copyFile(path.join(root, 'content/videos', file), path.join(output, 'videos', file));
 }
 const featured = articles.find(a => a.featured);
-const images = new Set([logoFile, featured.cover, ...videos.map(video => video.poster)].filter(Boolean));
+const images = new Set([logoFile, tabFile, featured.cover, ...videos.map(video => video.poster)].filter(Boolean));
 for (const image of images) await copyFile(path.join(root, 'src/images', image), path.join(output, 'assets', image));
 const articleIndex = articles.map(({ slug, title, excerpt, abstract, category, type, keywords, sections, sample }) => ({
   slug, title, excerpt, abstract, category, type, keywords, sample,
@@ -233,7 +234,7 @@ const cards = articles.map((a, i) => `<article class="article-card" data-slug="$
 </article>`).join('\n');
 const siteFragments = {
   SITE_NAME: siteName, ETHICS_LABEL: ethicsLabel, THEME_COLOR: defaultThemeColor,
-  LOGO_ASSET: logoAsset, STYLE_VERSION: styleVersion, APP_VERSION: appVersion
+  TAB_ASSET: tabAsset, STYLE_VERSION: styleVersion, APP_VERSION: appVersion
 };
 const home = await readFile(path.join(root, 'src/index.html'), 'utf8');
 const areas = Object.entries(fields)
@@ -300,7 +301,7 @@ for (const a of articles) {
   }).join('');
   const document = a.document ? `<div class="document-banner"><div><span class="eyebrow">${escape(a.edition || 'Çalışma rehberi')}</span><p>${a.document.pages} sayfalık rehber · Tam metin, tablolar ve çalışma programı</p></div><a class="button button-primary" href="../../documents/${escape(a.document.file)}" download>${escape(a.document.label)}</a></div>` : '';
   const html = `<!doctype html>
-<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="${defaultThemeColor}"><title>${escape(a.title)} | ${siteName}</title><meta name="description" content="${escape(a.excerpt)}"><meta property="og:title" content="${escape(a.title)}"><meta property="og:site_name" content="${siteName}"><meta property="og:description" content="${escape(a.excerpt)}"><meta property="og:type" content="article"><meta property="og:locale" content="tr_TR"><link rel="icon" type="image/png" href="../../${logoAsset}"><link rel="stylesheet" href="../../assets/styles.css?v=${styleVersion}"><script type="module" src="../../assets/app.js?v=${appVersion}"></script></head>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="${defaultThemeColor}"><title>${escape(a.title)} | ${siteName}</title><meta name="description" content="${escape(a.excerpt)}"><meta property="og:title" content="${escape(a.title)}"><meta property="og:site_name" content="${siteName}"><meta property="og:description" content="${escape(a.excerpt)}"><meta property="og:type" content="article"><meta property="og:locale" content="tr_TR"><link rel="icon" type="image/png" sizes="32x32" href="../../${tabAsset}"><link rel="stylesheet" href="../../assets/styles.css?v=${styleVersion}"><script type="module" src="../../assets/app.js?v=${appVersion}"></script></head>
 <body data-base="../../" data-article="${a.slug}"${a.document ? ' class="study-guide"' : ''}><a class="skip-link" href="#icerik">İçeriğe geç</a><div class="reading-progress" id="reading-progress"></div>${header('../../')}
 <main id="icerik" class="reader wrap"><nav class="breadcrumbs" aria-label="İçerik yolu"><a href="../../">Ana sayfa</a><span aria-hidden="true">/</span><a href="../../#yazilar">Çalışma arşivi</a><span aria-hidden="true">/</span><span>${escape(fields[a.category])}</span></nav>
 <div class="reader-heading">${metadata(a)}<h1>${escape(a.title)}</h1><p class="reader-deck">${escape(a.excerpt)}</p><div class="reader-controls"><span class="sample-label">${a.sample ? 'ÖRNEK METİN · KAVRAMSAL ÇALIŞMA' : escape(a.type)}</span><div><button type="button" class="icon-button" id="font-size" aria-label="Yazı boyutunu büyüt" aria-pressed="false"><span class="font-icon">Aa</span></button>${saveButton(a)}<button class="text-button" type="button" id="share-article">Bağlantıyı kopyala</button></div></div></div>

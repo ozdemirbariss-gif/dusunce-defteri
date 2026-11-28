@@ -621,7 +621,7 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
 
 @media (max-width: 31rem) {
   .wordmark { font-size: 1.35rem; }
-  .wordmark img { width: 2rem; height: 2rem; }
+  .wordmark img { width: 1.75rem; height: 1.75rem; }
   .site-header nav { font-size: .82rem; }
   .site-header nav a { padding-block: .45rem; }
   .icon-button { width: 2.3rem; }
