@@ -185,13 +185,12 @@ for (const a of articles.filter(a => a.document)) {
 }
 await writeFile(path.join(output, '.nojekyll'), '');
 const featuredHtml = `<article class="feature" aria-labelledby="featured-title">
-  <a class="feature-link" href="./yazilar/${featured.slug}/">
-    ${featured.cover ? `<img class="feature-image" src="./assets/${featured.cover}" alt="" fetchpriority="high">` : ''}
+  <a class="feature-link" href="./yazilar/${featured.slug}/" aria-labelledby="featured-title">
     <span class="feature-label eyebrow">Öne çıkan araştırma</span>
-    <div class="feature-caption">
-      <h2 id="featured-title">${escape(featured.title)}</h2>
-      <p>${escape(featured.type)} · ${minutes(featured)} dk okuma${featured.sample ? ' · Örnek metin' : ''}</p>
-    </div>
+    ${featured.cover ? `<img class="feature-image" src="./assets/${featured.cover}" alt="">` : ''}
+    <h2 id="featured-title">${escape(featured.title)}</h2>
+    <p class="feature-summary">${escape(featured.excerpt)}</p>
+    <p class="feature-meta">${escape(featured.type)} · ${minutes(featured)} dk okuma${featured.sample ? ' · Örnek metin' : ''}</p>
   </a>
 </article>`;
 const languageNames = new Intl.DisplayNames(['tr'], { type: 'language' });
