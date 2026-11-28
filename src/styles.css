@@ -87,11 +87,15 @@ a, button, input { -webkit-tap-highlight-color: transparent; }
   gap: 1.5rem;
 }
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
   justify-self: start;
   white-space: nowrap;
   font: 1.55rem/1.1 var(--serif);
   letter-spacing: -.045em;
 }
+.wordmark img { display: block; flex: none; }
 .site-header nav, .header-actions { display: flex; align-items: center; }
 .site-header nav { gap: clamp(1.1rem, 2.5vw, 2.5rem); font-size: .9rem; font-weight: 550; }
 .site-header nav a { padding-block: .45rem; white-space: nowrap; }
@@ -629,6 +633,7 @@ kbd { padding: 0 .3rem; border: 1px solid var(--line); border-radius: .2rem; bac
 
 @media (max-width: 31rem) {
   .wordmark { font-size: 1.35rem; }
+  .wordmark img { width: 2rem; height: 2rem; }
   .site-header nav { font-size: .82rem; }
   .site-header nav a { padding-block: .45rem; }
   .icon-button { width: 2.3rem; }
