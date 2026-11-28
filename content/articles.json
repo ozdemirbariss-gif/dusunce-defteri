@@ -2458,6 +2458,78 @@
     "referencesIntro": "Aşağıdaki liste, rehberin omurgasını oluşturan birincil metinleri ve güncel referans kaynaklarını içerir. Çalışma için önce yıldızlı ana metinleri oku; ardından Stanford Encyclopedia of Philosophy (SEP) maddelerini kavram haritası olarak kullan."
   },
   {
+    "slug": "yapay-zeka-risk-aciklamalari",
+    "title": "Şirketler yapay zekâ risklerini ne kadar açıklıyor?",
+    "excerpt": "MIT FutureTech ve Queensland Üniversitesi araştırmacıları, 200 büyük şirketin kamuya açık belgelerinde hangi yapay zekâ risklerine yer verdiğini inceledi.",
+    "category": "Yapay Zekâ",
+    "type": "Ön baskı incelemesi",
+    "method": "Belge analizi ve uzman görüşleriyle karşılaştırma",
+    "abstract": "Büyük şirketlerin kamuya açık belgelerinde adı geçen yapay zekâ riskleri, uzmanların öncelik verdiği risklerle örtüşüyor mu? 3 Kasım 2026’da arXiv’e yüklenen bu çalışma, şirketlerin hangi riskleri açıkladığını ve dışarıdan denetim için bu açıklamaların ne kadar bilgi verdiğini inceliyor.",
+    "keywords": ["MIT FutureTech", "risk açıklamaları", "kurumsal şeffaflık", "hesap verebilirlik", "yapay zekâ yönetişimi"],
+    "sections": [
+      {
+        "title": "Araştırma nasıl yapıldı?",
+        "paragraphs": [
+          "Ekip, piyasa değerine göre dünyanın en büyük 100 şirketini ve 101–1.000 sıralamasından rastgele seçilen 100 şirketi inceledi. Taramanın odak noktası 2026 başındaki kamuya açık kayıtlardı. İncelemeye alınan 539 belge, MIT AI Risk Repository’deki 24 risk kategorisine göre sınıflandırıldı.",
+          "Şirketlerin hangi riskleri belirttiğini, 272 uzmanın risk şiddeti, sektörlerin kırılganlığı ve şirketlerin sorumluluğu hakkındaki değerlendirmeleriyle karşılaştırdı. Belge taraması ve sınıflandırmada dil modellerinden yararlanıldı. Her şirketin risk sınıflandırması insan denetiminden geçti."
+        ],
+        "citations": ["saeri", "mit"]
+      },
+      {
+        "title": "Kamuya açık belgelerde ne bulundu?",
+        "blocks": [
+          {
+            "type": "table",
+            "header": true,
+            "rows": [
+              ["Şirket grubu", "İncelenen belgelerde hiçbir yapay zekâ riski belirtmeyenler"],
+              ["En büyük 100", "%32 · Doğrudan gözlem"],
+              ["En büyük 1.000", "%62 · Ağırlıklı tahmin. %95 güven aralığı %54–%70."]
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Açıklamaların yarısından fazlası beş riskte toplandı. Bunlar ayrımcılık, silahlar ve siber saldırılar, dolandırıcılık, mahremiyet kaybı ve insan yaratıcılığının değersizleşmesiydi. Uzmanların ağır sonuçlarla ilişkilendirdiği güç yoğunlaşması, güvenlikten ödün verilen rekabet ve tehlikeli model yetenekleri belgelerde çok seyrek yer aldı."
+          }
+        ],
+        "citations": ["saeri", "mit"]
+      },
+      {
+        "title": "Bulgular nasıl okunmalı?",
+        "paragraphs": [
+          "Araştırmacılar, şirketin kamuya açık bir belgede riskin varlığını ya da kendisiyle ilgisini kabul edip etmediğini kaydetti. Kurum içi uygulamalar ve önlemlerin etkinliği doğrudan ölçülmedi.",
+          "Örneklem borsada işlem gören büyük şirketlerden oluşuyor. OpenAI ve Anthropic gibi örnekleme girmeyen geliştiricilere ya da taramadan sonra yayımlanan belgelere sonuçları doğrudan genellemek mümkün değil."
+        ],
+        "citations": ["saeri"]
+      },
+      {
+        "title": "Hesap verebilirlik açısından önemi",
+        "paragraphs": [
+          "Yazarlar, şirketlerin ortak bir risk kümesi hakkında rapor vermesini ve bu kümeye sektörlerine ve yapay zekâ ekosistemindeki rollerine özgü riskleri eklemesini öneriyor. Belirtilen her önlemin hangi riski ele aldığını açıkça yazmak, şirketlerin açıklamalarını karşılaştırmayı kolaylaştırır.",
+          "MIT’nin etkileşimli araştırma sayfası, bulguları şirket, sektör ve risk kategorisine göre incelemeye ve raporlardaki özgün ifadelere ulaşmaya imkân veriyor."
+        ],
+        "citations": ["mit"]
+      }
+    ],
+    "references": [
+      {
+        "id": "saeri",
+        "citation": "Saeri, A. K., Graham, J., Noetel, M., Slattery, P., Zhao, K., Zhang, E., Howard, E. ve Thompson, N. (2026). Unmitigated? How are the world’s largest companies responding to AI risks? Ön baskı, arXiv:2611.04278.",
+        "label": "arXiv PDF’sini aç",
+        "url": "https://arxiv.org/pdf/2611.04278",
+        "primary": true
+      },
+      {
+        "id": "mit",
+        "citation": "MIT AI Risk Initiative. Company Disclosures. Araştırma özeti ve etkileşimli veri gezgini.",
+        "label": "MIT’nin araştırma sayfasını aç",
+        "url": "https://airisk.mit.edu/company-disclosures"
+      }
+    ],
+    "sample": false,
+    "featured": false
+  },
+  {
     "slug": "kendine-ait-bir-hayat",
     "title": "Sahicilik ve Özerklik: Öznenin Kendi Yaşamını Kurma Sorunu",
     "category": "Varoluş",

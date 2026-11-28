@@ -15,7 +15,7 @@ const siteName = 'AI Ethics';
 const defaultThemeColor = '#152e3c';
 const articles = JSON.parse(await readFile(path.join(root, 'content/articles.json'), 'utf8'));
 const { sources, videos } = JSON.parse(await readFile(path.join(root, 'content/library.json'), 'utf8'));
-const { case: ethicsCase } = JSON.parse(await readFile(path.join(root, 'content/ethics.json'), 'utf8'));
+const { case: ethicsCase, research: ethicsResearchSlugs = [] } = JSON.parse(await readFile(path.join(root, 'content/ethics.json'), 'utf8'));
 const ethicsPath = 'ai-ethics/';
 const ethicsLabel = 'Etik Dosyaları';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -144,6 +144,11 @@ for (const review of ethicsCase.reviews) {
   }
   reviewSlugs.add(review.slug);
 }
+const ethicsResearch = ethicsResearchSlugs.map(slug => {
+  const article = articles.find(a => a.slug === slug);
+  if (!article) throw new Error(`Etik Dosyaları için araştırma bulunamadı: ${slug}`);
+  return article;
+});
 
 await rm(output, { recursive: true, force: true });
 await mkdir(path.join(output, 'assets'), { recursive: true });
@@ -251,6 +256,14 @@ const fragments = {
 };
 await writeFile(path.join(output, 'index.html'), renderTemplate(home, fragments));
 
+const researchHtml = ethicsResearch.length ? `<section class="ethics-research" id="arastirma-incelemeleri" aria-labelledby="ethics-research-title">
+  <div class="section-heading"><h2 id="ethics-research-title">Araştırma incelemeleri</h2></div>
+  <div class="source-list">${ethicsResearch.map(a => `<article class="source-card">
+    ${metadata(a)}
+    <h3><a href="../yazilar/${a.slug}/">${escape(a.title)}</a></h3>
+    <p>${escape(a.excerpt)}</p>
+  </article>`).join('')}</div>
+</section>` : '';
 const ethicsDate = new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long', timeZone: 'UTC' });
 const reviewsHtml = ethicsCase.reviews.map(review => `<section class="ethics-review" id="${review.slug}" aria-labelledby="${review.slug}-title">
   <p class="ethics-meta"><span class="section-label">${escape(review.type)}</span><span>${escape(review.publisher)}</span>${review.date
@@ -286,24 +299,27 @@ const ethicsTemplate = await readFile(path.join(root, 'src/ai-ethics.html'), 'ut
 await mkdir(path.join(output, ethicsPath), { recursive: true });
 await writeFile(path.join(output, ethicsPath, 'index.html'), renderTemplate(ethicsTemplate, {
   ...siteFragments,
-  HEADER: header('../', ethicsPath), FOOTER: footer('../'), DIALOG: dialog, CASE: caseHtml
+  HEADER: header('../', ethicsPath), FOOTER: footer('../'), DIALOG: dialog, RESEARCH: researchHtml, CASE: caseHtml
 }));
 
 for (const a of articles) {
   const dir = path.join(output, 'yazilar', a.slug);
   await mkdir(dir, { recursive: true });
   const related = articles.filter(b => b.slug !== a.slug).sort((b, c) => Number(c.category === a.category) - Number(b.category === a.category)).slice(0, 2);
-  const references = a.references.length ? `<section class="references-section" id="kaynakca"><h2>Kaynakça${a.document ? ' ve ileri okuma' : ''}</h2>${a.referencesIntro ? `<p>${escape(a.referencesIntro)}</p>` : ''}<ol>${a.references.map(r => `<li id="kaynak-${r.id}"><p>${r.primary ? '<span class="primary-reference" aria-label="Ana metin">★</span> ' : ''}${escape(r.citation)}</p>${r.url ? `<a href="${escape(r.url)}" target="_blank" rel="noopener noreferrer">Kaynağı aç<span class="sr-only"> — ${escape(r.citation)}</span></a>` : ''}</li>`).join('')}</ol></section>` : '';
+  const references = a.references.length ? `<section class="references-section" id="kaynakca"><h2>Kaynakça${a.document ? ' ve ileri okuma' : ''}</h2>${a.referencesIntro ? `<p>${escape(a.referencesIntro)}</p>` : ''}<ol>${a.references.map(r => `<li id="kaynak-${r.id}"><p>${r.primary ? '<span class="primary-reference" aria-label="Ana metin">★</span> ' : ''}${escape(r.citation)}</p>${r.url ? `<a href="${escape(r.url)}" target="_blank" rel="noopener noreferrer">${escape(r.label || 'Kaynağı aç')}<span class="sr-only"> — ${escape(r.citation)}</span></a>` : ''}</li>`).join('')}</ol></section>` : '';
   const sections = a.sections.map((s, i) => {
     let context = s.title;
     const blocks = (s.blocks || []).map(block => { if (block.type === 'heading') context = block.text; return renderBlock(block, context); }).join('');
     return `<section id="bolum-${i + 1}"><h2>${escape(s.title)}</h2>${(s.paragraphs || []).map(p => `<p>${escape(p)}</p>`).join('')}${blocks}${s.citations?.length ? `<p class="inline-citations">İlgili kaynaklar ${s.citations.map(id => { const r = a.references.find(ref => ref.id === id); return `<a href="#kaynak-${id}">${escape(r.citation.split('.')[0])} [${a.references.indexOf(r) + 1}]</a>`; }).join(' · ')}</p>` : ''}</section>`;
   }).join('');
   const document = a.document ? `<div class="document-banner"><div><span class="eyebrow">${escape(a.edition || 'Çalışma rehberi')}</span><p>${a.document.pages} sayfalık rehber · Tam metin, tablolar ve çalışma programı</p></div><a class="button button-primary" href="../../documents/${escape(a.document.file)}" download>${escape(a.document.label)}</a></div>` : '';
+  const archiveLink = ethicsResearch.includes(a)
+    ? `<a href="../../${ethicsPath}#arastirma-incelemeleri">${ethicsLabel}</a>`
+    : '<a href="../../#yazilar">Çalışma arşivi</a>';
   const html = `<!doctype html>
 <html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="${defaultThemeColor}"><title>${escape(a.title)} | ${siteName}</title><meta name="description" content="${escape(a.excerpt)}"><meta property="og:title" content="${escape(a.title)}"><meta property="og:site_name" content="${siteName}"><meta property="og:description" content="${escape(a.excerpt)}"><meta property="og:type" content="article"><meta property="og:locale" content="tr_TR"><link rel="icon" type="image/png" sizes="32x32" href="../../${tabAsset}"><link rel="stylesheet" href="../../assets/styles.css?v=${styleVersion}"><script type="module" src="../../assets/app.js?v=${appVersion}"></script></head>
 <body data-base="../../" data-article="${a.slug}"${a.document ? ' class="study-guide"' : ''}><a class="skip-link" href="#icerik">İçeriğe geç</a><div class="reading-progress" id="reading-progress"></div>${header('../../')}
-<main id="icerik" class="reader wrap"><nav class="breadcrumbs" aria-label="İçerik yolu"><a href="../../">Ana sayfa</a><span aria-hidden="true">/</span><a href="../../#yazilar">Çalışma arşivi</a><span aria-hidden="true">/</span><span>${escape(fields[a.category])}</span></nav>
+<main id="icerik" class="reader wrap"><nav class="breadcrumbs" aria-label="İçerik yolu"><a href="../../">Ana sayfa</a><span aria-hidden="true">/</span>${archiveLink}<span aria-hidden="true">/</span><span>${escape(fields[a.category])}</span></nav>
 <div class="reader-heading">${metadata(a)}<h1>${escape(a.title)}</h1><p class="reader-deck">${escape(a.excerpt)}</p><div class="reader-controls"><span class="sample-label">${a.sample ? 'ÖRNEK METİN · KAVRAMSAL ÇALIŞMA' : escape(a.type)}</span><div><button type="button" class="icon-button" id="font-size" aria-label="Yazı boyutunu büyüt" aria-pressed="false"><span class="font-icon">Aa</span></button>${saveButton(a)}<button class="text-button" type="button" id="share-article">Bağlantıyı kopyala</button></div></div></div>
 ${document}<div class="reader-layout"><aside class="reader-sidebar"><nav class="table-of-contents" aria-label="İçindekiler"><span class="eyebrow">İÇİNDEKİLER</span><a href="#ozet">Özet ve anahtar kelimeler</a>${a.sections.map((s, i) => `<a href="#bolum-${i + 1}">${escape(s.title)}</a>`).join('')}${a.references.length ? '<a href="#kaynakca">Kaynakça</a>' : ''}</nav><section class="study-details" aria-labelledby="study-details-title"><h2 id="study-details-title">Çalışma bilgileri</h2><dl><div><dt>Alan</dt><dd>${escape(fields[a.category])}</dd></div><div><dt>Tür</dt><dd>${escape(a.type)}</dd></div><div><dt>Yöntem</dt><dd>${escape(a.method)}</dd></div><div><dt>Dil</dt><dd>Türkçe</dd></div><div><dt>Durum</dt><dd>${a.sample ? 'Örnek metin' : a.document ? escape(a.edition) : 'Çalışma metni'}</dd></div></dl></section></aside>
 <article class="prose"><section class="abstract-block" id="ozet"><h2>Özet</h2><p>${escape(a.abstract)}</p>${keywords(a)}</section>${sections}${references}${a.sample ? '<p class="reader-disclaimer">Bu çalışma, arşivin akademik sunum yapısını örneklemek için hazırlanmış başlangıç metnidir.</p>' : ''}</article></div>
